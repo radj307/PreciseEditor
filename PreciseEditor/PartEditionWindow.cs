@@ -153,6 +153,9 @@ namespace PreciseEditor
             tmp_InputDeltaPosition.onDeselect.AddListener(new UnityAction<string>(this.OnDeselectTextInput));
             tmp_InputDeltaRotation.onSelect.AddListener(new UnityAction<string>(this.OnSelectTextInput));
             tmp_InputDeltaRotation.onDeselect.AddListener(new UnityAction<string>(this.OnDeselectTextInput));
+
+            GameEvents.onEditorPartEvent.Add(OnEditorPartEvent);
+            GameEvents.onEditorPodDeleted.Add(OnEditorPodDeleted);
         }
 
         private void OnPopupDialogDestroy()
@@ -161,6 +164,8 @@ namespace PreciseEditor
             this.dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
             this.dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
+            GameEvents.onEditorPartEvent.Remove(OnEditorPartEvent);
+            GameEvents.onEditorPodDeleted.Remove(OnEditorPodDeleted);
         }
 
         private void OnSelectTextInput(string s)
@@ -171,6 +176,22 @@ namespace PreciseEditor
         private void OnDeselectTextInput(string s)
         {
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
+        }
+
+        private void OnEditorPartEvent(ConstructionEventType eventType, Part part)
+        {
+            if (eventType == ConstructionEventType.PartDetached && !EditorLogic.RootPart.hasIndirectChild(this.part) && this.popupDialog)
+            {
+                this.popupDialog.Dismiss();
+            }
+        }
+
+        private void OnEditorPodDeleted()
+        {
+            if (this.popupDialog)
+            {
+                this.popupDialog.Dismiss();
+            }
         }
 
         private string SetPosition(int vectorIndex, string value, Space space)
