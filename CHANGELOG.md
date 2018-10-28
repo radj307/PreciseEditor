@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+### 0.2.0
+- Recompiled for KSP 1.5.1
+
 ### 0.1.2
 - Updated Licence to GPL 3.0
 
