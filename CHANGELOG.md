@@ -1,7 +1,10 @@
 ## CHANGELOG
 
-### 0.2.1
+### 1.0.0
 - Recompiled for KSP 1.6.0
+- Part Edition Window can edit Authority Limiter, Thrust Limiter, Gimbal Limit, Decouple Force Percent, Deploy Limit, Light RGB,
+  Parachute Min Pressure, Altitude, Spread Angle, Wheels Brakes, Friction, Spring, Damper, Drive Limiter, Traction Control with
+  greater precision.
 
 ### 0.2.0
 - Recompiled for KSP 1.5.1
