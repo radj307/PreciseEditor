@@ -71,7 +71,7 @@ namespace PreciseEditor
             return dictionary[partModuleName];
         }
 
-        public static string GetTweakableFieldValue(PartModule partModule, string fieldName)
+        public static string GetPartModuleFieldValue(PartModule partModule, string fieldName)
         {
             string value = "";
 
@@ -139,7 +139,7 @@ namespace PreciseEditor
             return value;
         }
 
-        public static string SetTweakableFieldValue(PartModule partModule, string fieldName, string value)
+        public static string SetPartModuleFieldValue(PartModule partModule, string fieldName, string value)
         {
             float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
 
@@ -202,6 +202,21 @@ namespace PreciseEditor
             if (partModule is ModuleWheels.ModuleWheelMotor moduleWheelMotor)
             {
                 moduleWheelMotor.GetType().GetField(fieldName).SetValue(moduleWheelMotor, fValue);
+            }
+
+            return value;
+        }
+
+        public static string SetPartFieldValue(Part part, PartModule partModule, string fieldName, string value)
+        {
+            SetPartModuleFieldValue(partModule, fieldName, value);
+            PartModuleList partModuleList = TweakablePartModules.GetPartModules(part);
+            int partModuleIndex = partModuleList.IndexOf(partModule);
+
+            foreach (Part symmetryCounterpart in part.symmetryCounterparts)
+            {
+                PartModuleList symmetryCounterpartModuleList = TweakablePartModules.GetPartModules(symmetryCounterpart);
+                SetPartModuleFieldValue(symmetryCounterpartModuleList[partModuleIndex], fieldName, value);
             }
 
             return value;

@@ -114,10 +114,10 @@ namespace PreciseEditor
                 {
                     string label = labels[fieldIndex];
                     DialogGUILabel labelField = new DialogGUILabel(label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
-                    string txt = TweakablePartModules.GetTweakableFieldValue(partModule, fieldName);
+                    string txt = TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName);
                     DialogGUITextInput inputField = new DialogGUITextInput(txt, false, MAXLENGTH,
-                        delegate (string value) { return TweakablePartModules.SetTweakableFieldValue(partModule, fieldName, value); },
-                        delegate { return TweakablePartModules.GetTweakableFieldValue(partModule, fieldName); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+                        delegate (string value) { return TweakablePartModules.SetPartFieldValue(part, partModule, fieldName, value); },
+                        delegate { return TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
                     dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
                     partModuleInputList.Add(inputField);
                     fieldIndex++;
