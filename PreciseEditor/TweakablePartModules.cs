@@ -185,14 +185,6 @@ namespace PreciseEditor
             return value;
         }
 
-        /*
-        PartResourceList partResourceList = part.Resources;
-        foreach (PartResource partResource in partResourceList)
-        {
-            Debug.Log("Resource " + partResource.resourceName + ": " + partResource.amount + "/" + partResource.maxAmount);
-            partResource.amount = partResource.maxAmount; // Writing...
-        }*/
-
         private static bool IsTweakablePartModule(PartModule partModule)
         {
             return
