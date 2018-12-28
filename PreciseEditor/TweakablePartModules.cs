@@ -29,6 +29,7 @@ namespace PreciseEditor
                 { "ModuleControlSurface", new string[] { "authorityLimiter" } },
                 { "ModuleAnimateGeneric", new string[] { "deployPercent" } },
                 { "ModuleEngines", new string[] { "thrustPercentage" } },
+                { "ModuleEnginesFX", new string[] { "thrustPercentage" } },
                 { "ModuleRCSFX", new string[] { "thrustPercentage" } },
                 { "ModuleDecouple", new string[] { "ejectionForcePercent" } },
                 { "ModuleLight", new string[] { "lightR", "lightG", "lightB" } },
@@ -51,6 +52,7 @@ namespace PreciseEditor
                 { "ModuleControlSurface", new string[] { Localizer.Format("#autoLOC_6001336") } },
                 { "ModuleAnimateGeneric", new string[] { Localizer.Format("#autoLOC_6001353") } },
                 { "ModuleEngines", new string[] { Localizer.Format("#autoLOC_6001363") } },
+                { "ModuleEnginesFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
                 { "ModuleRCSFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
                 { "ModuleDecouple", new string[] { Localizer.Format("#autoLOC_6001442") } },
                 { "ModuleLight", new string[] { Localizer.Format("#autoLOC_6001402"), Localizer.Format("#autoLOC_6001403"), Localizer.Format("#autoLOC_6001404") } },
@@ -192,6 +194,7 @@ namespace PreciseEditor
                 partModule is ModuleControlSurface ||
                 partModule is ModuleAnimateGeneric ||
                 partModule is ModuleEngines ||
+                partModule is ModuleEnginesFX ||
                 partModule is ModuleRCSFX ||
                 partModule is ModuleDecouple ||
                 partModule is ModuleLight ||
