@@ -44,13 +44,16 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppLauncherButton.cs" />
+    <Compile Include="TweakablePartModules.cs" />
     <Compile Include="PartEditionWindow.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="PartTransform.cs" />
