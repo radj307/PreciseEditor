@@ -27,10 +27,12 @@ namespace PreciseEditor
             {
                 { "ModuleReactionWheel", new string[] { "authorityLimiter" } },
                 { "ModuleControlSurface", new string[] { "authorityLimiter" } },
+                { "ModuleAeroSurface", new string[] { "aeroAuthorityLimiter" } },
                 { "ModuleAnimateGeneric", new string[] { "deployPercent" } },
                 { "ModuleEngines", new string[] { "thrustPercentage" } },
                 { "ModuleEnginesFX", new string[] { "thrustPercentage" } },
                 { "ModuleRCSFX", new string[] { "thrustPercentage" } },
+                { "ModuleGimbal", new string[] { "gimbalLimiter" } },
                 { "ModuleDecouple", new string[] { "ejectionForcePercent" } },
                 { "ModuleLight", new string[] { "lightR", "lightG", "lightB" } },
                 { "ModuleProceduralFairing", new string[] { "ejectionForce", "nArcs" } },
@@ -50,10 +52,12 @@ namespace PreciseEditor
             {
                 { "ModuleReactionWheel", new string[] { Localizer.Format("#autoLOC_6001309") } },
                 { "ModuleControlSurface", new string[] { Localizer.Format("#autoLOC_6001336") } },
+                { "ModuleAeroSurface", new string[] { Localizer.Format("#autoLOC_6001336") } },
                 { "ModuleAnimateGeneric", new string[] { Localizer.Format("#autoLOC_6001353") } },
                 { "ModuleEngines", new string[] { Localizer.Format("#autoLOC_6001363") } },
                 { "ModuleEnginesFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
                 { "ModuleRCSFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
+                { "ModuleGimbal", new string[] { Localizer.Format("#autoLOC_6001383") } },
                 { "ModuleDecouple", new string[] { Localizer.Format("#autoLOC_6001442") } },
                 { "ModuleLight", new string[] { Localizer.Format("#autoLOC_6001402"), Localizer.Format("#autoLOC_6001403"), Localizer.Format("#autoLOC_6001404") } },
                 { "ModuleProceduralFairing", new string[] { Localizer.Format("#autoLOC_6001395"), Localizer.Format("#autoLOC_6001394") } },
@@ -79,6 +83,10 @@ namespace PreciseEditor
             {
                 value = moduleControlSurface.GetType().GetField(fieldName).GetValue(moduleControlSurface).ToString();
             }
+            if (partModule is ModuleAeroSurface moduleAeroSurface)
+            {
+                value = moduleAeroSurface.GetType().GetField(fieldName).GetValue(moduleAeroSurface).ToString();
+            }
             if (partModule is ModuleAnimateGeneric moduleAnimateGeneric)
             {
                 value = moduleAnimateGeneric.GetType().GetField(fieldName).GetValue(moduleAnimateGeneric).ToString();
@@ -90,6 +98,10 @@ namespace PreciseEditor
             if (partModule is ModuleRCSFX moduleRcsFx)
             {
                 value = moduleRcsFx.GetType().GetField(fieldName).GetValue(moduleRcsFx).ToString();
+            }
+            if (partModule is ModuleGimbal moduleGimbal)
+            {
+                value = moduleGimbal.GetType().GetField(fieldName).GetValue(moduleGimbal).ToString();
             }
             if (partModule is ModuleDecouple moduleDecouple)
             {
@@ -139,6 +151,10 @@ namespace PreciseEditor
             {
                 moduleControlSurface.GetType().GetField(fieldName).SetValue(moduleControlSurface, fValue);
             }
+            if (partModule is ModuleAeroSurface moduleAeroSurface)
+            {
+                moduleAeroSurface.GetType().GetField(fieldName).SetValue(moduleAeroSurface, fValue);
+            }
             if (partModule is ModuleAnimateGeneric moduleAnimateGeneric)
             {
                 moduleAnimateGeneric.GetType().GetField(fieldName).SetValue(moduleAnimateGeneric, fValue);
@@ -150,6 +166,10 @@ namespace PreciseEditor
             if (partModule is ModuleRCSFX moduleRcsFx)
             {
                 moduleRcsFx.GetType().GetField(fieldName).SetValue(moduleRcsFx, fValue);
+            }
+            if (partModule is ModuleGimbal moduleGimbal)
+            {
+                moduleGimbal.GetType().GetField(fieldName).SetValue(moduleGimbal, fValue);
             }
             if (partModule is ModuleDecouple moduleDecouple)
             {
@@ -189,13 +209,14 @@ namespace PreciseEditor
 
         private static bool IsTweakablePartModule(PartModule partModule)
         {
-            return
+            return partModule.isEnabled && (
                 partModule is ModuleReactionWheel ||
                 partModule is ModuleControlSurface ||
+                partModule is ModuleAeroSurface ||
                 partModule is ModuleAnimateGeneric ||
                 partModule is ModuleEngines ||
-                partModule is ModuleEnginesFX ||
                 partModule is ModuleRCSFX ||
+                partModule is ModuleGimbal ||
                 partModule is ModuleDecouple ||
                 partModule is ModuleLight ||
                 partModule is ModuleProceduralFairing ||
@@ -203,7 +224,7 @@ namespace PreciseEditor
                 partModule is ModuleWheelBase ||
                 partModule is ModuleWheels.ModuleWheelBrakes ||
                 partModule is ModuleWheels.ModuleWheelSuspension ||
-                partModule is ModuleWheels.ModuleWheelMotor;
+                partModule is ModuleWheels.ModuleWheelMotor);
         }
     }
 }
