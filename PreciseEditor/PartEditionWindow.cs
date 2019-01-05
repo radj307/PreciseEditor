@@ -187,9 +187,6 @@ namespace PreciseEditor
                 tmp_InputField.onSelect.AddListener(new UnityAction<string>(this.OnSelectTextInput));
                 tmp_InputField.onDeselect.AddListener(new UnityAction<string>(this.OnDeselectTextInput));
             }
-
-            GameEvents.onEditorPartEvent.Add(OnEditorPartEvent);
-            GameEvents.onEditorPodDeleted.Add(OnEditorPodDeleted);
         }
 
         private void OnPopupDialogDestroy()
@@ -198,8 +195,6 @@ namespace PreciseEditor
             this.dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
             this.dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
-            GameEvents.onEditorPartEvent.Remove(OnEditorPartEvent);
-            GameEvents.onEditorPodDeleted.Remove(OnEditorPodDeleted);
         }
 
         private void OnSelectTextInput(string s)
@@ -212,20 +207,24 @@ namespace PreciseEditor
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
         }
 
-        private void OnEditorPartEvent(ConstructionEventType eventType, Part part)
-        {
-            if (eventType == ConstructionEventType.PartDetached && !EditorLogic.RootPart.hasIndirectChild(this.part) && this.popupDialog)
-            {
-                this.popupDialog.Dismiss();
-            }
-        }
-
-        private void OnEditorPodDeleted()
+        private void DismissDialog()
         {
             if (this.popupDialog)
             {
                 this.popupDialog.Dismiss();
             }
+        }
+
+        private bool ValidatePart()
+        {
+            bool partValid = (this.part != null);
+
+            if (!partValid)
+            {
+                this.DismissDialog();
+            }
+
+            return partValid;
         }
 
         private string SetPosition(int vectorIndex, string value, Space space)
@@ -239,6 +238,10 @@ namespace PreciseEditor
 
         private string GetPosition(int vectorIndex, Space space)
         {
+            if (!this.ValidatePart())
+            {
+                return "";
+            }
             if (space == Space.Self)
             {
                 return this.part.transform.localPosition[vectorIndex].ToString(FORMAT_POSITION);
@@ -264,6 +267,10 @@ namespace PreciseEditor
 
         private string GetRotation(int vectorIndex, Space space)
         {
+            if (!this.ValidatePart())
+            {
+                return "";
+            }
             if (space == Space.Self)
             {
                 return this.part.transform.localRotation.eulerAngles[vectorIndex].ToString(FORMAT_ANGLE);
