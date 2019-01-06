@@ -210,6 +210,7 @@ namespace PreciseEditor
         public static string SetPartFieldValue(Part part, PartModule partModule, string fieldName, string value)
         {
             SetPartModuleFieldValue(partModule, fieldName, value);
+            GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
             PartModuleList partModuleList = TweakablePartModules.GetPartModules(part);
             int partModuleIndex = partModuleList.IndexOf(partModule);
 
@@ -217,6 +218,7 @@ namespace PreciseEditor
             {
                 PartModuleList symmetryCounterpartModuleList = TweakablePartModules.GetPartModules(symmetryCounterpart);
                 SetPartModuleFieldValue(symmetryCounterpartModuleList[partModuleIndex], fieldName, value);
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, symmetryCounterpart);
             }
 
             return value;
