@@ -19,6 +19,7 @@ namespace PreciseEditor
                 offset = part.transform.InverseTransformPoint(newPosition);
                 part.transform.position = newPosition;
             }
+            PartTransform.SetEditorGizmoPosition(part.transform.position);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
@@ -45,6 +46,7 @@ namespace PreciseEditor
             {
                 part.transform.rotation = Quaternion.Euler(eulerAngles);
             }
+            PartTransform.SetEditorGizmoRotation(part.transform.rotation);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
@@ -63,6 +65,7 @@ namespace PreciseEditor
         public static void Rotate(Part part, Vector3 eulerAngles, Space space)
         {
             part.transform.Rotate(eulerAngles, space);
+            PartTransform.SetEditorGizmoRotation(part.transform.rotation);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
@@ -138,6 +141,36 @@ namespace PreciseEditor
             {
                 symmetryCounterpart.transform.Rotate(eulerAngles, Space.Self);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
+            }
+        }
+
+        private static void SetEditorGizmoPosition(Vector3 position)
+        {
+            var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
+            if (gizmoOffset != null)
+            {
+                gizmoOffset.transform.position = position;
+            }
+
+            var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
+            if (gizmoRotate != null)
+            {
+                gizmoRotate.transform.position = position;
+            }
+        }
+
+        private static void SetEditorGizmoRotation(Quaternion rotation)
+        {
+            var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
+            if (gizmoOffset != null)
+            {
+                gizmoOffset.transform.rotation = rotation;
+            }
+
+            var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
+            if (gizmoRotate != null)
+            {
+                gizmoRotate.transform.rotation = rotation;
             }
         }
     }
