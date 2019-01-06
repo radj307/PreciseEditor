@@ -19,7 +19,7 @@ namespace PreciseEditor
                 offset = part.transform.InverseTransformPoint(newPosition);
                 part.transform.position = newPosition;
             }
-            PartTransform.SetEditorGizmoPosition(part.transform.position);
+            PartTransform.UpdateEditorGizmo(part);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
@@ -37,7 +37,7 @@ namespace PreciseEditor
         public static void Rotate(Part part, Vector3 eulerAngles, Space space)
         {
             part.transform.Rotate(eulerAngles, space);
-            PartTransform.SetEditorGizmoRotation(part.transform.rotation);
+            PartTransform.UpdateEditorGizmo(part);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
@@ -62,6 +62,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.position = EditorLogic.RootPart.transform.position + projection + offset;
+                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
@@ -71,6 +72,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.Translate(offset);
+                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
@@ -85,7 +87,7 @@ namespace PreciseEditor
                 {
                     symmetryCounterpart.transform.Rotate(new Vector3(0, 180, 0), Space.Self);
                 }
-
+                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
         }
@@ -95,6 +97,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.rotation *= rotation;
+                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
         }
@@ -109,37 +112,34 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.Rotate(eulerAngles, Space.Self);
+                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
         }
 
-        private static void SetEditorGizmoPosition(Vector3 position)
+        private static void UpdateEditorGizmo(Part part)
         {
-            var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
-            if (gizmoOffset != null)
+            if (part == EditorLogic.SelectedPart)
             {
-                gizmoOffset.transform.position = position;
-            }
+                var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
+                if (gizmoOffset != null)
+                {
+                    gizmoOffset.transform.position = part.transform.position;
+                    if (gizmoOffset.CoordSpace == Space.Self)
+                    {
+                        gizmoOffset.transform.rotation = part.transform.rotation;
+                    }
+                }
 
-            var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
-            if (gizmoRotate != null)
-            {
-                gizmoRotate.transform.position = position;
-            }
-        }
-
-        private static void SetEditorGizmoRotation(Quaternion rotation)
-        {
-            var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
-            if (gizmoOffset != null)
-            {
-                gizmoOffset.transform.rotation = rotation;
-            }
-
-            var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
-            if (gizmoRotate != null)
-            {
-                gizmoRotate.transform.rotation = rotation;
+                var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
+                if (gizmoRotate != null)
+                {
+                    gizmoRotate.transform.position = part.transform.position;
+                    if (gizmoRotate.CoordSpace == Space.Self)
+                    {
+                        gizmoRotate.transform.rotation = part.transform.rotation;
+                    }
+                }
             }
         }
     }
