@@ -199,7 +199,7 @@ namespace PreciseEditor
 
         private void OnSelectTextInput(string s)
         {
-            InputLockManager.SetControlLock(ControlTypes.KEYBOARDINPUT, CONTROL_LOCK_ID);
+            InputLockManager.SetControlLock(ControlTypes.EDITOR_GIZMO_TOOLS | ControlTypes.EDITOR_ROOT_REFLOW, CONTROL_LOCK_ID);
         }
 
         private void OnDeselectTextInput(string s)
