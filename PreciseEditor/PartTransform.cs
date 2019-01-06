@@ -54,18 +54,10 @@ namespace PreciseEditor
 
         private static void UpdateMirrorSymmetryCounterpartsPosition(Part part)
         {
-            if (part.parent)
+            foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
-                Vector3 localPosition = part.transform.position - part.parent.transform.position;
-                Vector3 projection = Vector3.ProjectOnPlane(localPosition, EditorLogic.RootPart.transform.right);
-                Vector3 projectedPoint = part.parent.transform.position + projection;
-                Vector3 offset = projectedPoint - part.transform.position;
-
-                foreach (Part symmetryCounterpart in part.symmetryCounterparts)
-                {
-                    symmetryCounterpart.transform.position = symmetryCounterpart.parent.transform.position + projection + offset;
-                    GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
-                }
+                symmetryCounterpart.transform.position = EditorGeometryUtil.MirrorPos(part.transform.position, EditorLogic.RootPart.transform, part.transform);
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
 
