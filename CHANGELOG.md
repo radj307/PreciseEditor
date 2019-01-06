@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+### 1.0.1
+- Adjusted keyboard control lock.
+- Fixed the Z SetRotation rotating around the Y axis.
+- Update editor gizmo position and rotation.
+- Fixed a mirror symmetry rotation bug.
+- Fixed a NullReferenceException when clicking the new or load craft button while the Part Edition Window was open.
+
 ### 1.0.0
 - Recompiled for KSP 1.6.0
 - Part Edition Window can edit Authority Limiter, Thrust Limiter, Gimbal Limit, Decouple Force Percent, Deploy Limit, Light RGB,
