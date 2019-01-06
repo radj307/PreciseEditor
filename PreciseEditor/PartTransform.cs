@@ -34,34 +34,6 @@ namespace PreciseEditor
             EditorLogic.fetch.SetBackup();
         }
 
-        public static void SetRotation(Part part, Vector3 eulerAngles, Space space)
-        {
-            Vector3 srcEulerAngles = (space == Space.Self) ? part.transform.localRotation.eulerAngles : part.transform.rotation.eulerAngles;
-
-            if (space == Space.Self)
-            {
-                part.transform.localRotation = Quaternion.Euler(eulerAngles);
-            }
-            else
-            {
-                part.transform.rotation = Quaternion.Euler(eulerAngles);
-            }
-            PartTransform.SetEditorGizmoRotation(part.transform.rotation);
-            GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, part);
-
-            if (part.symMethod == SymmetryMethod.Mirror)
-            {
-                PartTransform.UpdateMirrorSymmetryCounterpartsRotation(part);
-            }
-            else if (part.symMethod == SymmetryMethod.Radial)
-            {
-                Quaternion angle = Quaternion.Euler(eulerAngles - srcEulerAngles);
-                PartTransform.UpdateRadialSymmetryCounterpartsRotation(part, angle);
-            }
-
-            EditorLogic.fetch.SetBackup();
-        }
-
         public static void Rotate(Part part, Vector3 eulerAngles, Space space)
         {
             part.transform.Rotate(eulerAngles, space);

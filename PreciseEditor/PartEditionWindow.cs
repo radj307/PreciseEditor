@@ -255,13 +255,10 @@ namespace PreciseEditor
         private string SetRotation(int vectorIndex, string value, Space space)
         {
             float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
-            if (fValue < 0 || fValue >= 360f)
-            {
-                fValue %= 360f;
-            }
-            Vector3 eulerAngles = (space == Space.Self) ? this.part.transform.localRotation.eulerAngles : this.part.transform.rotation.eulerAngles;
-            eulerAngles[vectorIndex] = fValue;
-            PartTransform.SetRotation(this.part, eulerAngles, space);
+            Vector3 partEulerAngles = (space == Space.Self) ? this.part.transform.localRotation.eulerAngles : this.part.transform.rotation.eulerAngles;
+            Vector3 eulerAngles = new Vector3(0, 0, 0);
+            eulerAngles[vectorIndex] = fValue - partEulerAngles[vectorIndex];
+            PartTransform.Rotate(this.part, eulerAngles, space);
             return value;
         }
 
