@@ -6,69 +6,136 @@ namespace PreciseEditor
 {
     public static class TweakablePartModules
     {
-        public static PartModuleList GetPartModules(Part part)
+        public static string[] GetTweakableFieldNames(PartModule partModule)
         {
-            PartModuleList partModuleList = new PartModuleList(part);
-
-            foreach (PartModule partModule in part.Modules)
+            if (partModule is ModuleReactionWheel moduleReactionWheel)
             {
-                if (!TweakablePartModules.IsTweakablePartModule(partModule))
-                {
-                    partModuleList.Remove(partModule);
-                }
+                return new string[] { "authorityLimiter" };
+            }
+            if (partModule is ModuleControlSurface moduleControlSurface)
+            {
+                return new string[] { "authorityLimiter" };
+            }
+            if (partModule is ModuleAeroSurface moduleAeroSurface)
+            {
+                return new string[] { "aeroAuthorityLimiter" };
+            }
+            if (partModule is ModuleAnimateGeneric moduleAnimateGeneric)
+            {
+                return new string[] { "deployPercent" };
+            }
+            if (partModule is ModuleEngines moduleEngines)
+            {
+                return new string[] { "thrustPercentage" };
+            }
+            if (partModule is ModuleRCSFX moduleRcsFx)
+            {
+                return new string[] { "thrustPercentage" };
+            }
+            if (partModule is ModuleGimbal moduleGimbal)
+            {
+                return new string[] { "gimbalLimiter" };
+            }
+            if (partModule is ModuleDecouple moduleDecouple)
+            {
+                return new string[] { "ejectionForcePercent" };
+            }
+            if (partModule is ModuleLight moduleLight)
+            {
+                return new string[] { "lightR", "lightG", "lightB" };
+            }
+            if (partModule is ModuleProceduralFairing moduleProceduralFairing)
+            {
+                return new string[] { "ejectionForce" };
+            }
+            if (partModule is ModuleParachute moduleParachute)
+            {
+                return new string[] { "minAirPressureToOpen", "deployAltitude", "spreadAngle" };
+            }
+            if (partModule is ModuleWheelBase moduleWheelBase)
+            {
+                return new string[] { "frictionMultiplier" };
+            }
+            if (partModule is ModuleWheels.ModuleWheelBrakes moduleWheelBrakes)
+            {
+                return new string[] { "brakeTweakable" };
+            }
+            if (partModule is ModuleWheels.ModuleWheelSuspension moduleWheelSuspension)
+            {
+                return new string[] { "springTweakable", "damperTweakable" };
+            }
+            if (partModule is ModuleWheels.ModuleWheelMotor moduleWheelMotor)
+            {
+                return new string[] { "driveLimiter", "tractionControlScale" };
             }
 
-            return partModuleList;
+            return new string[] { };
         }
 
-        public static string[] GetTweakableFieldNames(string partModuleName)
+        public static string[] GetTweakableFieldLabels(PartModule partModule)
         {
-            IDictionary<string, string[]> dictionary = new Dictionary<string, string[]>()
+            if (partModule is ModuleReactionWheel moduleReactionWheel)
             {
-                { "ModuleReactionWheel", new string[] { "authorityLimiter" } },
-                { "ModuleControlSurface", new string[] { "authorityLimiter" } },
-                { "ModuleAeroSurface", new string[] { "aeroAuthorityLimiter" } },
-                { "ModuleAnimateGeneric", new string[] { "deployPercent" } },
-                { "ModuleEngines", new string[] { "thrustPercentage" } },
-                { "ModuleEnginesFX", new string[] { "thrustPercentage" } },
-                { "ModuleRCSFX", new string[] { "thrustPercentage" } },
-                { "ModuleGimbal", new string[] { "gimbalLimiter" } },
-                { "ModuleDecouple", new string[] { "ejectionForcePercent" } },
-                { "ModuleLight", new string[] { "lightR", "lightG", "lightB" } },
-                { "ModuleProceduralFairing", new string[] { "ejectionForce" } },
-                { "ModuleParachute", new string[] { "minAirPressureToOpen", "deployAltitude", "spreadAngle" } },
-                { "ModuleWheelBase", new string[] { "frictionMultiplier" } },
-                { "ModuleWheelBrakes", new string[] { "brakeTweakable" } },
-                { "ModuleWheelSuspension", new string[] { "springTweakable", "damperTweakable" } },
-                { "ModuleWheelMotor", new string[] { "driveLimiter", "tractionControlScale" } }
-            };
-
-            return dictionary[partModuleName];
-        }
-
-        public static string[] GetTweakableFieldLabels(string partModuleName)
-        {
-            IDictionary<string, string[]> dictionary = new Dictionary<string, string[]>()
+                return new string[] { Localizer.Format("#autoLOC_6001309") };
+            }
+            if (partModule is ModuleControlSurface moduleControlSurface)
             {
-                { "ModuleReactionWheel", new string[] { Localizer.Format("#autoLOC_6001309") } },
-                { "ModuleControlSurface", new string[] { Localizer.Format("#autoLOC_6001336") } },
-                { "ModuleAeroSurface", new string[] { Localizer.Format("#autoLOC_6001336") } },
-                { "ModuleAnimateGeneric", new string[] { Localizer.Format("#autoLOC_6001353") } },
-                { "ModuleEngines", new string[] { Localizer.Format("#autoLOC_6001363") } },
-                { "ModuleEnginesFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
-                { "ModuleRCSFX", new string[] { Localizer.Format("#autoLOC_6001363") } },
-                { "ModuleGimbal", new string[] { Localizer.Format("#autoLOC_6001383") } },
-                { "ModuleDecouple", new string[] { Localizer.Format("#autoLOC_6001442") } },
-                { "ModuleLight", new string[] { Localizer.Format("#autoLOC_6001402"), Localizer.Format("#autoLOC_6001403"), Localizer.Format("#autoLOC_6001404") } },
-                { "ModuleProceduralFairing", new string[] { Localizer.Format("#autoLOC_6001395") } },
-                { "ModuleParachute", new string[] { Localizer.Format("#autoLOC_6001340"), Localizer.Format("#autoLOC_463493"), Localizer.Format("#autoLOC_6001341") } },
-                { "ModuleWheelBase", new string[] { Localizer.Format("#autoLOC_6001457") } },
-                { "ModuleWheelBrakes", new string[] { Localizer.Format("#autoLOC_6003006") } },
-                { "ModuleWheelSuspension", new string[] { Localizer.Format("#autoLOC_6001469"), Localizer.Format("#autoLOC_6001470") } },
-                { "ModuleWheelMotor", new string[] { Localizer.Format("#autoLOC_6001463"), Localizer.Format("#autoLOC_6001464") } }
-            };
+                return new string[] { Localizer.Format("#autoLOC_6001336") };
+            }
+            if (partModule is ModuleAeroSurface moduleAeroSurface)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001336") };
+            }
+            if (partModule is ModuleAnimateGeneric moduleAnimateGeneric)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001353") };
+            }
+            if (partModule is ModuleEngines moduleEngines)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001363") };
+            }
+            if (partModule is ModuleRCSFX moduleRcsFx)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001363") };
+            }
+            if (partModule is ModuleGimbal moduleGimbal)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001383") };
+            }
+            if (partModule is ModuleDecouple moduleDecouple)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001442") };
+            }
+            if (partModule is ModuleLight moduleLight)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001402"), Localizer.Format("#autoLOC_6001403"), Localizer.Format("#autoLOC_6001404") };
+            }
+            if (partModule is ModuleProceduralFairing moduleProceduralFairing)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001395") };
+            }
+            if (partModule is ModuleParachute moduleParachute)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001340"), Localizer.Format("#autoLOC_463493"), Localizer.Format("#autoLOC_6001341") };
+            }
+            if (partModule is ModuleWheelBase moduleWheelBase)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001457") };
+            }
+            if (partModule is ModuleWheels.ModuleWheelBrakes moduleWheelBrakes)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6003006") };
+            }
+            if (partModule is ModuleWheels.ModuleWheelSuspension moduleWheelSuspension)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001469"), Localizer.Format("#autoLOC_6001470") };
+            }
+            if (partModule is ModuleWheels.ModuleWheelMotor moduleWheelMotor)
+            {
+                return new string[] { Localizer.Format("#autoLOC_6001463"), Localizer.Format("#autoLOC_6001464") };
+            }
 
-            return dictionary[partModuleName];
+            return new string[] { };
         }
 
         public static string GetPartModuleFieldValue(PartModule partModule, string fieldName)
@@ -211,20 +278,18 @@ namespace PreciseEditor
         {
             SetPartModuleFieldValue(partModule, fieldName, value);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
-            PartModuleList partModuleList = TweakablePartModules.GetPartModules(part);
-            int partModuleIndex = partModuleList.IndexOf(partModule);
+            int partModuleIndex = part.Modules.IndexOf(partModule);
 
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
-                PartModuleList symmetryCounterpartModuleList = TweakablePartModules.GetPartModules(symmetryCounterpart);
-                SetPartModuleFieldValue(symmetryCounterpartModuleList[partModuleIndex], fieldName, value);
+                SetPartModuleFieldValue(symmetryCounterpart.Modules[partModuleIndex], fieldName, value);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, symmetryCounterpart);
             }
 
             return value;
         }
 
-        private static bool IsTweakablePartModule(PartModule partModule)
+        public static bool IsTweakablePartModule(PartModule partModule)
         {
             return partModule.isEnabled && (
                 partModule is ModuleReactionWheel ||

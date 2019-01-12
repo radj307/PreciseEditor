@@ -107,26 +107,28 @@ namespace PreciseEditor
                 new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, labelTransformSpacer, labelDeltaAngle, inputDeltaRotation)
             };
 
-            PartModuleList partModuleList = TweakablePartModules.GetPartModules(part);
             List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
 
-            foreach (PartModule partModule in partModuleList)
+            foreach (PartModule partModule in part.Modules)
             {
-                string[] fieldNames = TweakablePartModules.GetTweakableFieldNames(partModule.moduleName);
-                string[] labels = TweakablePartModules.GetTweakableFieldLabels(partModule.moduleName);
-
-                int fieldIndex = 0;
-                foreach (string fieldName in fieldNames)
+                if (TweakablePartModules.IsTweakablePartModule(partModule))
                 {
-                    string label = labels[fieldIndex];
-                    DialogGUILabel labelField = new DialogGUILabel(label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
-                    string txt = TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName);
-                    DialogGUITextInput inputField = new DialogGUITextInput(txt, false, MAXLENGTH,
-                        delegate (string value) { return TweakablePartModules.SetPartFieldValue(part, partModule, fieldName, value); },
-                        delegate { return TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-                    dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
-                    partModuleInputList.Add(inputField);
-                    fieldIndex++;
+                    string[] fieldNames = TweakablePartModules.GetTweakableFieldNames(partModule);
+                    string[] labels = TweakablePartModules.GetTweakableFieldLabels(partModule);
+
+                    int fieldIndex = 0;
+                    foreach (string fieldName in fieldNames)
+                    {
+                        string label = labels[fieldIndex];
+                        DialogGUILabel labelField = new DialogGUILabel(label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
+                        string txt = TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName);
+                        DialogGUITextInput inputField = new DialogGUITextInput(txt, false, MAXLENGTH,
+                            delegate (string value) { return TweakablePartModules.SetPartFieldValue(part, partModule, fieldName, value); },
+                            delegate { return TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+                        dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
+                        partModuleInputList.Add(inputField);
+                        fieldIndex++;
+                    }
                 }
             }
 
