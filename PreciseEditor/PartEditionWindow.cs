@@ -24,10 +24,7 @@ namespace PreciseEditor
         {
             this.part = part;
 
-            if (this.popupDialog)
-            {
-                return;
-            }
+            DismissDialog();
 
             const string TITLE = "Precise Editor - Part Edition Window";
             const string MESSAGE = "";
@@ -42,7 +39,7 @@ namespace PreciseEditor
             Quaternion localRotation = part.transform.localRotation;
 
             DialogGUILabel labelPartName = new DialogGUILabel("Part Name", LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.part.name + "_" + this.part.craftID.ToString(); }, 250, LINE_HEIGHT);
+            DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.GetPartName(); }, 250, LINE_HEIGHT);
             DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 140f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
             DialogGUILabel labelX = new DialogGUILabel("X", LINE_HEIGHT, LINE_HEIGHT);
@@ -95,7 +92,7 @@ namespace PreciseEditor
             DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { this.Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { this.Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { this.Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { }, 140f, LINE_HEIGHT, true);
+            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase> {
                 new DialogGUIHorizontalLayout(labelPartName, labelPartNameValue),
@@ -139,6 +136,7 @@ namespace PreciseEditor
                 new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
 
             this.popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
+            this.popupDialog.OnDismiss = this.SaveWindowPosition;
             this.popupDialog.onDestroy.AddListener(this.OnPopupDialogDestroy);
 
             TMP_InputField tmp_InputPositionX = inputPositionX.uiItem.GetComponent<TMP_InputField>();
@@ -199,9 +197,6 @@ namespace PreciseEditor
 
         private void OnPopupDialogDestroy()
         {
-            Vector3 dialogPosition = this.popupDialog.RTrf.position;
-            this.dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
-            this.dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
         }
 
@@ -215,10 +210,21 @@ namespace PreciseEditor
             InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
         }
 
+        private void SaveWindowPosition()
+        {
+            if (this.popupDialog)
+            {
+                Vector3 dialogPosition = this.popupDialog.RTrf.position;
+                this.dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
+                this.dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
+            }
+        }
+
         private void DismissDialog()
         {
             if (this.popupDialog)
             {
+                this.SaveWindowPosition();
                 this.popupDialog.Dismiss();
             }
         }
@@ -233,6 +239,16 @@ namespace PreciseEditor
             }
 
             return partValid;
+        }
+
+        private string GetPartName()
+        {
+            if (!this.ValidatePart())
+            {
+                return "";
+            }
+
+            return this.part.name + "_" + this.part.craftID.ToString();
         }
 
         private string SetPosition(int vectorIndex, string value, Space space)
