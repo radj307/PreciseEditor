@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### 1.0.2
+- Fixed a NullReferenceException when used with mods that change part modules. Window was not opening in that case.
+- Do not reset Part Edition Window position when pressing P on a part while the Part Edition Window is already opened.
+
 ### 1.0.1
 - Adjusted keyboard control lock.
 - Fixed the Z SetRotation rotating around the Y axis.
