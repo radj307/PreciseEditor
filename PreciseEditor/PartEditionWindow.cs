@@ -22,6 +22,13 @@ namespace PreciseEditor
 
         public void Show(Part part)
         {
+            this.part = part;
+
+            if (this.popupDialog)
+            {
+                return;
+            }
+
             const string TITLE = "Precise Editor - Part Edition Window";
             const string MESSAGE = "";
             const int MAXLENGTH = 14;
@@ -29,14 +36,13 @@ namespace PreciseEditor
             const float FIELD_LABEL_WIDTH = 100f;
             const float TRANSFORM_SPACER_WIDTH = 15f;
 
-            this.part = part;
             Vector3 position = part.transform.position;
             Vector3 localPosition = part.transform.localPosition;
             Quaternion rotation = part.transform.rotation;
             Quaternion localRotation = part.transform.localRotation;
 
             DialogGUILabel labelPartName = new DialogGUILabel("Part Name", LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelPartNameValue = new DialogGUILabel(part.name + "_" + part.craftID.ToString(), 250, LINE_HEIGHT);
+            DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.part.name + "_" + this.part.craftID.ToString(); }, 250, LINE_HEIGHT);
             DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 140f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
             DialogGUILabel labelX = new DialogGUILabel("X", LINE_HEIGHT, LINE_HEIGHT);
