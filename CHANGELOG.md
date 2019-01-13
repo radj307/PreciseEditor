@@ -1,6 +1,7 @@
 ## CHANGELOG
 
 ### 1.0.2
+- Support for KSP-AVC.
 - Fixed a NullReferenceException when used with mods that change part modules. Window was not opening in that case.
 - Do not reset Part Edition Window position when pressing P on a part while the Part Edition Window is already opened.
 
