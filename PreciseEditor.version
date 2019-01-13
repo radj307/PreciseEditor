@@ -1,7 +1,7 @@
 {
-    "NAME": "PreciseEditor",
+    "NAME": "Precise Editor",
 	"URL": "https://raw.githubusercontent.com/jfrouleau/PreciseEditor/master/PreciseEditor.version",
-	"DOWNLOAD": "http://kerbal.curseforge.com/projects/easy-vessel-switch-evs",
+	"DOWNLOAD": "https://github.com/jfrouleau/PreciseEditor/releases",
 	"CHANGE_LOG_URL": "https://raw.githubusercontent.com/jfrouleau/PreciseEditor/master/CHANGELOG.md",
 	"GITHUB":
 	{
