@@ -42,7 +42,7 @@ namespace PreciseEditor
 
             if (part.symMethod == SymmetryMethod.Mirror)
             {
-                PartTransform.UpdateMirrorSymmetryCounterpartsRotation(part);
+                PartTransform.RotateMirrorSymmetryCounterparts(part, eulerAngles, space);
             }
             else if (part.symMethod == SymmetryMethod.Radial)
             {
@@ -77,26 +77,24 @@ namespace PreciseEditor
             }
         }
 
-        private static void UpdateMirrorSymmetryCounterpartsRotation(Part part)
+        private static void RotateMirrorSymmetryCounterparts(Part part, Vector3 eulerAngles, Space space)
         {
-            foreach (Part symmetryCounterpart in part.symmetryCounterparts)
+            if (space == Space.Self)
             {
-                symmetryCounterpart.transform.rotation = EditorGeometryUtil.MirrorRotation(part.transform.rotation, part.transform, EditorLogic.RootPart.transform);
-
-                if (part.attRotation0 == symmetryCounterpart.attRotation0)
-                {
-                    symmetryCounterpart.transform.Rotate(new Vector3(0, 180, 0), Space.Self);
-                }
-                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
-                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
+                eulerAngles = part.transform.TransformDirection(eulerAngles);
             }
-        }
 
-        private static void UpdateRadialSymmetryCounterpartsRotation(Part part, Quaternion rotation)
-        {
+            eulerAngles = EditorLogic.RootPart.transform.InverseTransformDirection(eulerAngles);
+            Quaternion rotation = Quaternion.Euler(eulerAngles);
+            Vector3 axis;
+            float angle;
+            rotation.ToAngleAxis(out angle, out axis);
+            Vector3 mirrorAxis = new Vector3(-axis.x, axis.y, axis.z);
+            mirrorAxis = EditorLogic.RootPart.transform.TransformDirection(mirrorAxis);
+
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
-                symmetryCounterpart.transform.rotation *= rotation;
+                symmetryCounterpart.transform.Rotate(mirrorAxis, -angle, Space.World);
                 PartTransform.UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
