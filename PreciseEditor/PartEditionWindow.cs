@@ -15,7 +15,7 @@ namespace PreciseEditor
         const float LINE_SPACER = 4f;
 
         PopupDialog popupDialog = null;
-        protected Rect dialogRect = new Rect(0.5f, 0.5f, 520f, 200f);
+        protected Rect dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
         protected Part part = null;
         protected float deltaPosition = 0.2f;
         protected float deltaRotation = 15f;
@@ -29,8 +29,7 @@ namespace PreciseEditor
             const string TITLE = "Precise Editor - Part Edition Window";
             const string MESSAGE = "";
             const int MAXLENGTH = 14;
-            const float LABEL_WIDTH = 80;
-            const float FIELD_LABEL_WIDTH = 100f;
+            const float LABEL_WIDTH = 100;
             const float TRANSFORM_SPACER_WIDTH = 15f;
 
             Vector3 position = part.transform.position;
@@ -40,14 +39,14 @@ namespace PreciseEditor
 
             DialogGUILabel labelPartName = new DialogGUILabel("Part Name", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.GetPartName(); }, 250, LINE_HEIGHT);
-            DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 140f, LINE_HEIGHT);
+            DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
             DialogGUILabel labelX = new DialogGUILabel("X", LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelY = new DialogGUILabel("Y", LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelZ = new DialogGUILabel("Z", LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelPosition = new DialogGUILabel("Position", LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelPosition = new DialogGUILabel("Absolute Position", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelLocalPosition = new DialogGUILabel("Local Position", LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelRotation = new DialogGUILabel("Rotation", LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelRotation = new DialogGUILabel("Absolute Rotation", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelLocalRotation = new DialogGUILabel("Local Rotation", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaPosition = new DialogGUILabel("-/+ Position", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaAngle = new DialogGUILabel("-/+ Angle", LABEL_WIDTH, LINE_HEIGHT);
@@ -108,7 +107,7 @@ namespace PreciseEditor
 
             foreach (var tweakable in part.GetTweakables())
             {
-                var labelField = new DialogGUILabel(tweakable.Label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
+                var labelField = new DialogGUILabel(tweakable.Label, LABEL_WIDTH, LINE_HEIGHT);
                 var inputField = new DialogGUITextInput(
                     tweakable.GetValue(),
                     false, MAXLENGTH,
