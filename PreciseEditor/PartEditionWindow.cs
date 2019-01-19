@@ -106,27 +106,17 @@ namespace PreciseEditor
 
             List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
 
-            foreach (PartModule partModule in part.Modules)
+            foreach (var tweakable in part.GetTweakables())
             {
-                if (TweakablePartModules.IsTweakablePartModule(partModule))
-                {
-                    string[] fieldNames = TweakablePartModules.GetTweakableFieldNames(partModule);
-                    string[] labels = TweakablePartModules.GetTweakableFieldLabels(partModule);
-
-                    int fieldIndex = 0;
-                    foreach (string fieldName in fieldNames)
-                    {
-                        string label = labels[fieldIndex];
-                        DialogGUILabel labelField = new DialogGUILabel(label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
-                        string txt = TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName);
-                        DialogGUITextInput inputField = new DialogGUITextInput(txt, false, MAXLENGTH,
-                            delegate (string value) { return TweakablePartModules.SetPartFieldValue(part, partModule, fieldName, value); },
-                            delegate { return TweakablePartModules.GetPartModuleFieldValue(partModule, fieldName); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-                        dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
-                        partModuleInputList.Add(inputField);
-                        fieldIndex++;
-                    }
-                }
+                var labelField = new DialogGUILabel(tweakable.Label, FIELD_LABEL_WIDTH, LINE_HEIGHT);
+                var inputField = new DialogGUITextInput(
+                    tweakable.GetValue(),
+                    false, MAXLENGTH,
+                    value => tweakable.SetValueWithSymmetry(value),
+                    () => tweakable.GetValue(),
+                    TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+                dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
+                partModuleInputList.Add(inputField);
             }
 
             dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
