@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using KSP.Localization;
 
 namespace PreciseEditor
 {
@@ -12,7 +13,6 @@ namespace PreciseEditor
 
         public string Label;
 
-        //todo: use RangeInfo to set min/max limits
         public UI_FloatRange RangeInfo;
 
         public string GetValue()
@@ -23,7 +23,8 @@ namespace PreciseEditor
         public string SetValueWithSymmetry(string valueStr)
         {
             var value = float.Parse(valueStr, CultureInfo.InvariantCulture.NumberFormat);
-
+            value = (value < RangeInfo.minValue) ? RangeInfo.minValue : value;
+            value = (value > RangeInfo.maxValue) ? RangeInfo.maxValue : value;
             FieldInfo.SetValue(Module, value);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, Part);
             var moduleIndex = Part.Modules.IndexOf(Module);
@@ -48,17 +49,16 @@ namespace PreciseEditor
                     .Select(f => new
                     {
                         fieldInfo = f,
-                        kspFieldInfo = (KSPField) f.GetCustomAttributes(typeof(KSPField), false).FirstOrDefault(),
-                        rangeInfo = (UI_FloatRange) f.GetCustomAttributes(typeof(UI_FloatRange), false).FirstOrDefault()
+                        kspFieldInfo = (KSPField)f.GetCustomAttributes(typeof(KSPField), false).FirstOrDefault(),
+                        rangeInfo = (UI_FloatRange)f.GetCustomAttributes(typeof(UI_FloatRange), false).FirstOrDefault()
                     })
-                    .Where(a => a.kspFieldInfo != null && a.kspFieldInfo.guiActiveEditor && a.rangeInfo != null)
+                    .Where(a => a.kspFieldInfo != null && a.rangeInfo != null)
                     .Select(a => new Tweakable
                     {
                         Part = part,
                         Module = module,
                         FieldInfo = a.fieldInfo,
-                        //todo: test if Localizer.Format() is needed on these
-                        Label = a.kspFieldInfo.guiName,
+                        Label = Localizer.Format(a.kspFieldInfo.guiName),
                         RangeInfo = a.rangeInfo
                     }))
                 .ToArray();
