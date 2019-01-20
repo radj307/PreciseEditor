@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+### 1.0.3
+- Fixed a mirror symmetry counterpart bug.
+- Tweakable fields are now found dynamically instead of having a fixed list (Thanks to Canisin for that contribution).
+- Position and Rotation become Absolute Position and Absolute Rotation.
+
 ### 1.0.2
 - Support for KSP-AVC.
 - Fixed a NullReferenceException when used with mods that change part modules. Window was not opening in that case.
