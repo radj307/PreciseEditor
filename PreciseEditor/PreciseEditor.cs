@@ -21,7 +21,7 @@ namespace PreciseEditor
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
-                Part part = this.GetPartUnderCursor();
+                Part part = GetPartUnderCursor();
                 if (part)
                 {
                     partEditionWindow.Show(part);
@@ -29,7 +29,7 @@ namespace PreciseEditor
             }
         }
 
-        private Part GetPartUnderCursor()
+        public static Part GetPartUnderCursor()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             EditorLogic editorLogic = EditorLogic.fetch;

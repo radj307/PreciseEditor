@@ -39,6 +39,8 @@ namespace PreciseEditor
 
             DialogGUILabel labelPartName = new DialogGUILabel("Part Name", LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.GetPartName(); }, 250, LINE_HEIGHT);
+            DialogGUILabel labelDistanceTo = new DialogGUILabel("Distance to", LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelDistanceToValue = new DialogGUILabel(delegate { return this.GetDistanceTo(); }, 250, LINE_HEIGHT);
             DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
             DialogGUILabel labelX = new DialogGUILabel("X", LINE_HEIGHT, LINE_HEIGHT);
@@ -95,6 +97,7 @@ namespace PreciseEditor
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase> {
                 new DialogGUIHorizontalLayout(labelPartName, labelPartNameValue),
+                new DialogGUIHorizontalLayout(labelDistanceTo, labelDistanceToValue),
                 new DialogGUIHorizontalLayout(labelAxisLeftSpacer, labelX, labelAxisCenterSpacer, labelY, labelAxisCenterSpacer, labelZ),
                 new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, labelTransformSpacer, buttonPosYMinus, inputPositionY, buttonPosYPlus, labelTransformSpacer, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
                 new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, labelTransformSpacer, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, labelTransformSpacer, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
@@ -237,7 +240,26 @@ namespace PreciseEditor
                 return "";
             }
 
-            return this.part.name + "_" + this.part.craftID.ToString();
+            return this.part.partInfo.title;
+        }
+
+        private string GetDistanceTo()
+        {
+            if (!this.ValidatePart())
+            {
+                return "";
+            }
+
+            Part targetPart = PreciseEditor.GetPartUnderCursor();
+
+            if (targetPart)
+            {
+                Vector3 distance = targetPart.transform.position - this.part.transform.position;
+
+                return targetPart.partInfo.title + "\n" + distance.ToString(FORMAT_POSITION);
+            }
+
+            return "";
         }
 
         private string SetPosition(int vectorIndex, string value, Space space)
