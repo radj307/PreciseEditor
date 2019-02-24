@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+### 1.1.0
+- The part name is now the same as the one on the right click menu (ex. : Mk1 Command Pod).
+- Added a new information which is the distance from the current part to the part under the cursor as a XYZ vector.
+  This is useful to measure the X, Y or Z distance between 2 parts.
+
 ### 1.0.3
 - Fixed a mirror symmetry counterpart bug.
 - Tweakable fields are now found dynamically instead of having a fixed list (Thanks to Canisin for that contribution).
