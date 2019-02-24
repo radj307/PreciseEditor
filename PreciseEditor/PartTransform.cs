@@ -86,9 +86,7 @@ namespace PreciseEditor
 
             eulerAngles = EditorLogic.RootPart.transform.InverseTransformDirection(eulerAngles);
             Quaternion rotation = Quaternion.Euler(eulerAngles);
-            Vector3 axis;
-            float angle;
-            rotation.ToAngleAxis(out angle, out axis);
+            rotation.ToAngleAxis(out float angle, out Vector3 axis);
             Vector3 mirrorAxis = new Vector3(-axis.x, axis.y, axis.z);
             mirrorAxis = EditorLogic.RootPart.transform.TransformDirection(mirrorAxis);
 
