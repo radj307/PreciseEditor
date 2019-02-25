@@ -26,7 +26,6 @@ namespace PreciseEditor
 
             DismissDialog();
 
-            const string TITLE = "Precise Editor - Part Edition Window";
             const string MESSAGE = "";
             const int MAXLENGTH = 14;
             const float LABEL_WIDTH = 100;
@@ -37,10 +36,6 @@ namespace PreciseEditor
             Quaternion rotation = part.transform.rotation;
             Quaternion localRotation = part.transform.localRotation;
 
-            DialogGUILabel labelPartName = new DialogGUILabel("Part Name", LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelPartNameValue = new DialogGUILabel(delegate { return this.GetPartName(); }, 250, LINE_HEIGHT);
-            DialogGUILabel labelDistanceTo = new DialogGUILabel("Distance to", LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDistanceToValue = new DialogGUILabel(delegate { return this.GetDistanceTo(); }, 250, LINE_HEIGHT);
             DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
             DialogGUILabel labelX = new DialogGUILabel("X", LINE_HEIGHT, LINE_HEIGHT);
@@ -93,11 +88,13 @@ namespace PreciseEditor
             DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { this.Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { this.Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { this.Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUILabel labelColliderBounds = new DialogGUILabel("Collider Bounds", LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelColliderBoundsValue = new DialogGUILabel(delegate { return this.GetColliderBounds(); });
+            DialogGUILabel labelPartUnderCursor = new DialogGUILabel("Part Under Cursor", LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelPartUnderCursorValue = new DialogGUILabel(delegate { return this.GetPartUnderCursorValue(); }, 415, LINE_HEIGHT * 2);
             DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase> {
-                new DialogGUIHorizontalLayout(labelPartName, labelPartNameValue),
-                new DialogGUIHorizontalLayout(labelDistanceTo, labelDistanceToValue),
                 new DialogGUIHorizontalLayout(labelAxisLeftSpacer, labelX, labelAxisCenterSpacer, labelY, labelAxisCenterSpacer, labelZ),
                 new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, labelTransformSpacer, buttonPosYMinus, inputPositionY, buttonPosYPlus, labelTransformSpacer, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
                 new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, labelTransformSpacer, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, labelTransformSpacer, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
@@ -121,10 +118,12 @@ namespace PreciseEditor
                 partModuleInputList.Add(inputField);
             }
 
+            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelColliderBounds, labelColliderBoundsValue));
+            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelPartUnderCursor, labelPartUnderCursorValue));
             dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelCloseButtonSpacer, buttonClose));
 
-            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", MESSAGE, TITLE, HighLogic.UISkin, this.dialogRect, new DialogGUIFlexibleSpace(),
+            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", MESSAGE, GetWindowTitle(), HighLogic.UISkin, this.dialogRect, new DialogGUIFlexibleSpace(),
                 new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
 
             this.popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
@@ -233,6 +232,11 @@ namespace PreciseEditor
             return partValid;
         }
 
+        private string GetWindowTitle()
+        {
+            return "Precise Editor - " + this.part.partInfo.title;
+        }
+
         private string GetPartName()
         {
             if (!this.ValidatePart())
@@ -243,7 +247,37 @@ namespace PreciseEditor
             return this.part.partInfo.title;
         }
 
-        private string GetDistanceTo()
+        private string GetColliderBounds()
+        {
+            if (!this.ValidatePart())
+            {
+                return "";
+            }
+
+            string center = this.part.collider.bounds.center.ToString(FORMAT_POSITION);
+            string extents = this.part.collider.bounds.extents.ToString(FORMAT_POSITION);
+            string size = this.part.collider.bounds.size.ToString(FORMAT_POSITION);
+
+            return "Center: " + center + "    Extents: " + extents + "\nSize: " + size;
+        }
+
+        private float GetDistanceBetweenIntervals(float center1, float min1, float max1, float center2, float min2, float max2)
+        {
+            float distance = ((center2 - center1) > 0) ? (min2 - max1) : (min1 - max2);
+
+            return (distance < 0) ? 0 : distance;
+        }
+
+        private Vector3 GetDistanceBetweenBounds(Bounds bounds1, Bounds bounds2)
+        {
+            float distanceX = GetDistanceBetweenIntervals(bounds1.center.x, bounds1.min.x, bounds1.max.x, bounds2.center.x, bounds2.min.x, bounds2.max.x);
+            float distanceY = GetDistanceBetweenIntervals(bounds1.center.y, bounds1.min.y, bounds1.max.y, bounds2.center.y, bounds2.min.y, bounds2.max.y);
+            float distanceZ = GetDistanceBetweenIntervals(bounds1.center.z, bounds1.min.z, bounds1.max.z, bounds2.center.z, bounds2.min.z, bounds2.max.z);
+
+            return new Vector3(distanceX, distanceY, distanceZ);
+        }
+
+        private string GetPartUnderCursorValue()
         {
             if (!this.ValidatePart())
             {
@@ -254,9 +288,18 @@ namespace PreciseEditor
 
             if (targetPart)
             {
-                Vector3 distance = targetPart.transform.position - this.part.transform.position;
+                Vector3 distanceToPart = targetPart.transform.position - part.transform.position;
+                Bounds srcBounds = part.collider.bounds;
+                Bounds targetBounds = targetPart.collider.bounds;
+                Vector3 distanceToCollider = GetDistanceBetweenBounds(srcBounds, targetBounds);
+                bool boundsIntersect = srcBounds.Intersects(targetBounds);
 
-                return targetPart.partInfo.title + "\n" + distance.ToString(FORMAT_POSITION);
+                string partUnderCursorValue = targetPart.partInfo.title + "\n";
+                partUnderCursorValue += "Distance To Part: " + distanceToPart.ToString(FORMAT_POSITION) + "\n";
+                partUnderCursorValue += "Distance Between Collider Bounds: " + distanceToCollider.ToString(FORMAT_POSITION) + "\n";
+                partUnderCursorValue += "Collider Bounds Intersects: " + boundsIntersect.ToString();
+
+                return partUnderCursorValue;
             }
 
             return "";

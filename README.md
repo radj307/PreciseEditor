@@ -17,6 +17,8 @@ Download the zip file and unzip it in your KSP GameData directory.
 - Enter the exact value for some part module's value instead of the inaccurate slider. (ex. : control surface authority limiter)
 - Units for position are in meters with 4 decimals of precision so 0.0001 is 1/10th of a millimeter.
 - Units for rotation are in degrees and angles are [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
+- Show the position and size of the part collider bounds.
+- Show the distance between 2 parts or their colliders to help with the creation of kerbal mechanical devices !
 
 ### Keys
 - Press P while the mouse is over a part show the Part Edition Window.

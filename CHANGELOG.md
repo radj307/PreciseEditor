@@ -1,8 +1,10 @@
 ## CHANGELOG
 
 ### 1.1.0
-- The part name is now the same as the one on the right click menu (ex. : Mk1 Command Pod).
-- Added a new information which is the distance from the current part to the part under the cursor as a XYZ vector.
+- The part name is now the same as the one on the right click menu (ex. : Mk1 Command Pod) and is on the window title.
+- Added new informations on the collider bounds of the current part regarding its position, extends and size.
+- Added new informations on the distance between the current part and the part under the cursor.
+  Also we have the distance between collider bounds and if they intersect.
   This is useful to measure the X, Y or Z distance between 2 parts.
 
 ### 1.0.3
