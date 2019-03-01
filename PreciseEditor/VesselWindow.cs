@@ -11,22 +11,22 @@ namespace PreciseEditor
 
         public void Show()
         {
-            const string TITLE = "Precise Editor - Vessel Window";
+            string title = FormatLabel("Precise Editor - ") + "Vessel Window";
             const string MESSAGE = "";
             const float LABEL_WIDTH = 100;
             const float VALUE_WIDTH = 150;
             const float HEIGHT = 25f;
 
-            DialogGUILabel labelCenterOfMass = new DialogGUILabel("Center of Mass", LABEL_WIDTH, HEIGHT);
-            DialogGUILabel labelCenterOfLift = new DialogGUILabel("Center of Lift", LABEL_WIDTH, HEIGHT);
-            DialogGUILabel labelCenterOfThrust = new DialogGUILabel("Center of Thrust", LABEL_WIDTH, HEIGHT);
+            DialogGUILabel labelCenterOfMass = new DialogGUILabel(FormatLabel("Center of Mass"), LABEL_WIDTH, HEIGHT);
+            DialogGUILabel labelCenterOfLift = new DialogGUILabel(FormatLabel("Center of Lift"), LABEL_WIDTH, HEIGHT);
+            DialogGUILabel labelCenterOfThrust = new DialogGUILabel(FormatLabel("Center of Thrust"), LABEL_WIDTH, HEIGHT);
             DialogGUILabel labelCloseButtonSpacer = new DialogGUILabel("", 60f, HEIGHT);
             DialogGUILabel valueCenterOfMass = new DialogGUILabel(this.GetCenterOfMass, VALUE_WIDTH, HEIGHT);
             DialogGUILabel valueCenterOfLift = new DialogGUILabel(this.GetCenterOfLift, VALUE_WIDTH, HEIGHT);
             DialogGUILabel valueCenterOfThrust = new DialogGUILabel(this.GetCenterOfThrust, VALUE_WIDTH, HEIGHT);
             DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { }, 140f, HEIGHT, true);
 
-            MultiOptionDialog dialog = new MultiOptionDialog("vesselWindowDialog", MESSAGE, TITLE, HighLogic.UISkin, this.dialogRect,
+            MultiOptionDialog dialog = new MultiOptionDialog("vesselWindowDialog", MESSAGE, title, HighLogic.UISkin, this.dialogRect,
                 new DialogGUIFlexibleSpace(),
                 new DialogGUIHorizontalLayout(labelCenterOfMass, valueCenterOfMass),
                 new DialogGUIHorizontalLayout(labelCenterOfLift, valueCenterOfLift),
@@ -110,6 +110,11 @@ namespace PreciseEditor
             {
                 return "No vessel";
             }
+        }
+
+        private string FormatLabel(string label)
+        {
+            return "<color=\"white\">" + label + "</color>";
         }
     }
 }
