@@ -5,7 +5,7 @@
 - Added new informations on the collider bounds of the current part regarding its position, extends and size.
 - Added new informations on the distance between the current part and the part under the cursor.
   Also we have the distance between collider bounds and if they intersect.
-  This is useful to measure the X, Y or Z distance between 2 parts.
+  It's now possible to make kerbal mechanical devices with perfect precision !
 
 ### 1.0.3
 - Fixed a mirror symmetry counterpart bug.
