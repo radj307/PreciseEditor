@@ -8,17 +8,19 @@ namespace PreciseEditor
 {
     public class PartEditionWindow : MonoBehaviour
     {
-        const string FORMAT_POSITION = "F4";
-        const string FORMAT_ANGLE    = "F4";
-        const string CONTROL_LOCK_ID = "PartEditionWindowLock";
+        const int MAXLENGTH = 14;
+        const float LABEL_WIDTH = 100;
         const float LINE_HEIGHT = 25f;
         const float LINE_SPACER = 4f;
+        const float TRANSFORM_SPACER_WIDTH = 15f;
+        const string FORMAT = "F4";
+        const string CONTROL_LOCK_ID = "PartEditionWindowLock";
 
-        PopupDialog popupDialog = null;
-        protected Rect dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
-        protected Part part = null;
-        protected float deltaPosition = 0.2f;
-        protected float deltaRotation = 15f;
+        private PopupDialog popupDialog = null;
+        private Rect dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
+        private float deltaPosition = 0.2f;
+        private float deltaRotation = 15f;
+        private Part part = null;
         private Part partUnderCursor = null;
 
         public void Update()
@@ -36,19 +38,13 @@ namespace PreciseEditor
 
         public void Show(Part part)
         {
-            this.part = part;
-
-            DismissDialog();
-
-            const string MESSAGE = "";
-            const int MAXLENGTH = 14;
-            const float LABEL_WIDTH = 100;
-            const float TRANSFORM_SPACER_WIDTH = 15f;
-
             Vector3 position = part.transform.position;
             Vector3 localPosition = part.transform.localPosition;
             Quaternion rotation = part.transform.rotation;
             Quaternion localRotation = part.transform.localRotation;
+
+            this.part = part;
+            DismissDialog();
 
             DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
             DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
@@ -62,22 +58,20 @@ namespace PreciseEditor
             DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaAngle = new DialogGUILabel(FormatLabel("-/+ Angle"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelTransformSpacer = new DialogGUILabel("", TRANSFORM_SPACER_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelCloseButtonSpacer = new DialogGUILabel("", 185f, LINE_HEIGHT);
-            DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionZ = new DialogGUITextInput(position.z.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.World); }, delegate { return GetPosition(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionX = new DialogGUITextInput(localPosition.x.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.Self); }, delegate { return GetPosition(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionY = new DialogGUITextInput(localPosition.y.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.Self); }, delegate { return GetPosition(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionZ = new DialogGUITextInput(localPosition.z.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.Self); }, delegate { return GetPosition(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationX = new DialogGUITextInput(rotation.eulerAngles.x.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.World); }, delegate { return GetRotation(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationY = new DialogGUITextInput(rotation.eulerAngles.y.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.World); }, delegate { return GetRotation(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationZ = new DialogGUITextInput(rotation.eulerAngles.z.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.World); }, delegate { return GetRotation(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationX = new DialogGUITextInput(localRotation.eulerAngles.x.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.Self); }, delegate { return GetRotation(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationY = new DialogGUITextInput(localRotation.eulerAngles.y.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.Self); }, delegate { return GetRotation(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationZ = new DialogGUITextInput(localRotation.eulerAngles.z.ToString(FORMAT_ANGLE), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.Self); }, delegate { return GetRotation(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput(deltaPosition.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT_POSITION); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput(deltaRotation.ToString(FORMAT_POSITION), false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT_POSITION); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-
+            DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionZ = new DialogGUITextInput(position.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.World); }, delegate { return GetPosition(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalPositionX = new DialogGUITextInput(localPosition.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.Self); }, delegate { return GetPosition(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalPositionY = new DialogGUITextInput(localPosition.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.Self); }, delegate { return GetPosition(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalPositionZ = new DialogGUITextInput(localPosition.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.Self); }, delegate { return GetPosition(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationX = new DialogGUITextInput(rotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.World); }, delegate { return GetRotation(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationY = new DialogGUITextInput(rotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.World); }, delegate { return GetRotation(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationZ = new DialogGUITextInput(rotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.World); }, delegate { return GetRotation(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalRotationX = new DialogGUITextInput(localRotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.Self); }, delegate { return GetRotation(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalRotationY = new DialogGUITextInput(localRotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.Self); }, delegate { return GetRotation(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputLocalRotationZ = new DialogGUITextInput(localRotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.Self); }, delegate { return GetRotation(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput(deltaPosition.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput(deltaRotation.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUIButton buttonPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
@@ -102,9 +96,10 @@ namespace PreciseEditor
             DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUILabel labelCloseButtonSpacer = new DialogGUILabel("", 185f, LINE_HEIGHT);
             DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
 
-            List <DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
+            List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
                 new DialogGUIHorizontalLayout(labelAxisLeftSpacer, labelX, labelAxisCenterSpacer, labelY, labelAxisCenterSpacer, labelZ),
                 new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, labelTransformSpacer, buttonPosYMinus, inputPositionY, buttonPosYPlus, labelTransformSpacer, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
@@ -134,65 +129,29 @@ namespace PreciseEditor
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelCloseButtonSpacer, buttonClose));
 
             string windowTitle = FormatLabel("Precise Editor - ") + part.partInfo.title;
-            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", MESSAGE, windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
-
+            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
             popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
             popupDialog.OnDismiss = SaveWindowPosition;
             popupDialog.onDestroy.AddListener(OnPopupDialogDestroy);
 
-            TMP_InputField tmp_InputPositionX = inputPositionX.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputPositionY = inputPositionY.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputPositionZ = inputPositionZ.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalPositionX = inputLocalPositionX.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalPositionY = inputLocalPositionY.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalPositionZ = inputLocalPositionZ.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputRotationX = inputRotationX.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputRotationY = inputRotationY.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputRotationZ = inputRotationZ.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalRotationX = inputLocalRotationX.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalRotationY = inputLocalRotationY.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputLocalRotationZ = inputLocalRotationZ.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputDeltaPosition = inputDeltaPosition.uiItem.GetComponent<TMP_InputField>();
-            TMP_InputField tmp_InputDeltaRotation = inputDeltaRotation.uiItem.GetComponent<TMP_InputField>();
-
-            tmp_InputPositionX.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputPositionX.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputPositionY.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputPositionY.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputPositionZ.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputPositionZ.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-
-            tmp_InputLocalPositionX.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalPositionX.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputLocalPositionY.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalPositionY.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputLocalPositionZ.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalPositionZ.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-
-            tmp_InputRotationX.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputRotationX.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputRotationY.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputRotationY.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputRotationZ.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputRotationZ.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-
-            tmp_InputLocalRotationX.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalRotationX.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputLocalRotationY.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalRotationY.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputLocalRotationZ.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputLocalRotationZ.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-
-            tmp_InputDeltaPosition.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputDeltaPosition.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-            tmp_InputDeltaRotation.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_InputDeltaRotation.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
+            SetTextInputListeners(inputPositionX);
+            SetTextInputListeners(inputPositionY);
+            SetTextInputListeners(inputPositionZ);
+            SetTextInputListeners(inputLocalPositionX);
+            SetTextInputListeners(inputLocalPositionY);
+            SetTextInputListeners(inputLocalPositionZ);
+            SetTextInputListeners(inputRotationX);
+            SetTextInputListeners(inputRotationY);
+            SetTextInputListeners(inputRotationZ);
+            SetTextInputListeners(inputLocalRotationX);
+            SetTextInputListeners(inputLocalRotationY);
+            SetTextInputListeners(inputLocalRotationZ);
+            SetTextInputListeners(inputDeltaPosition);
+            SetTextInputListeners(inputDeltaRotation);
 
             foreach (DialogGUITextInput partModuleInput in partModuleInputList)
             {
-                TMP_InputField tmp_InputField = partModuleInput.uiItem.GetComponent<TMP_InputField>();
-                tmp_InputField.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-                tmp_InputField.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
+                SetTextInputListeners(partModuleInput);
             }
         }
 
@@ -242,6 +201,13 @@ namespace PreciseEditor
             };
 
             return new DialogGUIBox("", 307, 90, null, layoutPartUnderCursor);
+        }
+
+        private void SetTextInputListeners(DialogGUITextInput textInput)
+        {
+            TMP_InputField tmp_Input = textInput.uiItem.GetComponent<TMP_InputField>();
+            tmp_Input.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
+            tmp_Input.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
         }
 
         private void OnPopupDialogDestroy()
@@ -297,17 +263,17 @@ namespace PreciseEditor
 
         private string GetColliderCenter()
         {
-            return part.collider.bounds.center.ToString(FORMAT_POSITION);
+            return part.collider.bounds.center.ToString(FORMAT);
         }
 
         private string GetColliderExtents()
         {
-            return part.collider.bounds.extents.ToString(FORMAT_POSITION);
+            return part.collider.bounds.extents.ToString(FORMAT);
         }
 
         private string GetColliderSize()
         {
-            return part.collider.bounds.size.ToString(FORMAT_POSITION);
+            return part.collider.bounds.size.ToString(FORMAT);
         }
 
         private float GetDistanceBetweenIntervals(float center1, float min1, float max1, float center2, float min2, float max2)
@@ -333,12 +299,12 @@ namespace PreciseEditor
 
         private string GetDistanceToPart()
         {
-            return partUnderCursor ? (partUnderCursor.transform.position - part.transform.position).ToString(FORMAT_POSITION) : "";
+            return partUnderCursor ? (partUnderCursor.transform.position - part.transform.position).ToString(FORMAT) : "";
         }
 
         private string GetDistanceBetweenColliders()
         {
-            return partUnderCursor ? GetDistanceBetweenBounds(part.collider.bounds, partUnderCursor.collider.bounds).ToString(FORMAT_POSITION) : "";
+            return partUnderCursor ? GetDistanceBetweenBounds(part.collider.bounds, partUnderCursor.collider.bounds).ToString(FORMAT) : "";
         }
 
         private string GetColliderBoundsIntersects()
@@ -359,11 +325,11 @@ namespace PreciseEditor
         {
             if (space == Space.Self)
             {
-                return part.transform.localPosition[vectorIndex].ToString(FORMAT_POSITION);
+                return part.transform.localPosition[vectorIndex].ToString(FORMAT);
             }
             else
             {
-                return part.transform.position[vectorIndex].ToString(FORMAT_POSITION);
+                return part.transform.position[vectorIndex].ToString(FORMAT);
             }
         }
 
@@ -381,11 +347,11 @@ namespace PreciseEditor
         {
             if (space == Space.Self)
             {
-                return part.transform.localRotation.eulerAngles[vectorIndex].ToString(FORMAT_ANGLE);
+                return part.transform.localRotation.eulerAngles[vectorIndex].ToString(FORMAT);
             }
             else
             {
-                return part.transform.rotation.eulerAngles[vectorIndex].ToString(FORMAT_ANGLE);
+                return part.transform.rotation.eulerAngles[vectorIndex].ToString(FORMAT);
             }
         }
 
