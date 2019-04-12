@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+### 1.1.1
+- Recompiled for KSP 1.7.0
+
 ### 1.1.0
 - The part name is now the same as the one on the right click menu (ex. : Mk1 Command Pod) and is on the window title.
 - Added new informations on the collider bounds of the current part regarding its position, extends and size.
