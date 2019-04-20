@@ -8,7 +8,7 @@ namespace PreciseEditor
 {
     public class PartEditionWindow : MonoBehaviour
     {
-        const int MAXLENGTH = 14;
+        const int MAXLENGTH = 8;
         const float LABEL_WIDTH = 100;
         const float LINE_HEIGHT = 25f;
         const float LINE_SPACER = 4f;
@@ -56,7 +56,7 @@ namespace PreciseEditor
             DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Absolute Rotation"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelLocalRotation = new DialogGUILabel(FormatLabel("Local Rotation"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDeltaAngle = new DialogGUILabel(FormatLabel("-/+ Angle"), LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelDeltaRotation = new DialogGUILabel(FormatLabel("-/+ Rotation"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelTransformSpacer = new DialogGUILabel("", TRANSFORM_SPACER_WIDTH, LINE_HEIGHT);
             DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
@@ -106,7 +106,7 @@ namespace PreciseEditor
                 new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, labelTransformSpacer, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, labelTransformSpacer, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
                 new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, labelTransformSpacer, buttonRotYMinus, inputRotationY, buttonRotYPlus, labelTransformSpacer, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
                 new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, labelTransformSpacer, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, labelTransformSpacer, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
-                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, labelTransformSpacer, labelDeltaAngle, inputDeltaRotation)
+                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, labelTransformSpacer, labelDeltaRotation, inputDeltaRotation)
             };
 
             List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
