@@ -229,9 +229,10 @@ namespace PreciseEditor
         {
             if (popupDialog)
             {
-                Vector3 dialogPosition = popupDialog.RTrf.position;
-                dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
-                dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
+                RectTransform rectTransform = popupDialog.GetComponent<RectTransform>();
+                Vector3 position = rectTransform.position / GameSettings.UI_SCALE;
+                dialogRect.x = position.x / Screen.width + 0.5f;
+                dialogRect.y = position.y / Screen.height + 0.5f;
             }
         }
 

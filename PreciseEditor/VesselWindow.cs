@@ -63,9 +63,10 @@ namespace PreciseEditor
 
         private void OnPopupDialogDestroy()
         {
-            Vector3 dialogPosition = this.popupDialog.RTrf.position;
-            this.dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
-            this.dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
+            RectTransform rectTransform = popupDialog.GetComponent<RectTransform>();
+            Vector3 position = rectTransform.position / GameSettings.UI_SCALE;
+            dialogRect.x = position.x / Screen.width + 0.5f;
+            dialogRect.y = position.y / Screen.height + 0.5f;
         }
 
         private string GetCenterOfMass()
