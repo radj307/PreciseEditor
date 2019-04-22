@@ -11,8 +11,6 @@ namespace PreciseEditor
         const int MAXLENGTH = 8;
         const float LABEL_WIDTH = 100;
         const float LINE_HEIGHT = 25f;
-        const float LINE_SPACER = 4f;
-        const float TRANSFORM_SPACER_WIDTH = 15f;
         const string FORMAT = "F4";
         const string CONTROL_LOCK_ID = "PartEditionWindowLock";
 
@@ -46,8 +44,8 @@ namespace PreciseEditor
             this.part = part;
             DismissDialog();
 
-            DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
-            DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
+            DialogGUISpace spaceAxisLeft = new DialogGUISpace(160f);
+            DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
             DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT, LINE_HEIGHT);
@@ -57,7 +55,7 @@ namespace PreciseEditor
             DialogGUILabel labelLocalRotation = new DialogGUILabel(FormatLabel("Local Rotation"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaRotation = new DialogGUILabel(FormatLabel("-/+ Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelTransformSpacer = new DialogGUILabel("", TRANSFORM_SPACER_WIDTH, LINE_HEIGHT);
+            DialogGUISpace spaceTransform = new DialogGUISpace(15f);
             DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUITextInput inputPositionZ = new DialogGUITextInput(position.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.World); }, delegate { return GetPosition(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
@@ -96,17 +94,17 @@ namespace PreciseEditor
             DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUILabel labelCloseButtonSpacer = new DialogGUILabel("", 185f, LINE_HEIGHT);
+            DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
             DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
-                new DialogGUIHorizontalLayout(labelAxisLeftSpacer, labelX, labelAxisCenterSpacer, labelY, labelAxisCenterSpacer, labelZ),
-                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, labelTransformSpacer, buttonPosYMinus, inputPositionY, buttonPosYPlus, labelTransformSpacer, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
-                new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, labelTransformSpacer, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, labelTransformSpacer, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
-                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, labelTransformSpacer, buttonRotYMinus, inputRotationY, buttonRotYPlus, labelTransformSpacer, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
-                new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, labelTransformSpacer, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, labelTransformSpacer, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
-                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, labelTransformSpacer, labelDeltaRotation, inputDeltaRotation)
+                new DialogGUIHorizontalLayout(spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ),
+                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
+                new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, spaceTransform, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, spaceTransform, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
+                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
+                new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, spaceTransform, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, spaceTransform, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
+                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, spaceTransform, labelDeltaRotation, inputDeltaRotation)
             };
 
             List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
@@ -126,7 +124,7 @@ namespace PreciseEditor
 
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(GetBoxColliderBoundsDialogGUIBox(), GetPartUnderCursorDialogGUIBox()));
             dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
-            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelCloseButtonSpacer, buttonClose));
+            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
 
             string windowTitle = FormatLabel("Precise Editor - ") + part.partInfo.title;
             MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
