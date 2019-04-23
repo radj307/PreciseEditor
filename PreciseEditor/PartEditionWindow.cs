@@ -1,48 +1,58 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 
 namespace PreciseEditor
 {
-    public class PartEditionWindow : MonoBehaviour
+    public class PartEditionWindow : BaseWindow
     {
         const int MAXLENGTH = 8;
         const float LABEL_WIDTH = 100;
         const float LINE_HEIGHT = 25f;
         const string FORMAT = "F4";
-        const string CONTROL_LOCK_ID = "PartEditionWindowLock";
 
-        private PopupDialog popupDialog = null;
-        private Rect dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
         private float deltaPosition = 0.2f;
         private float deltaRotation = 15f;
         private Part part = null;
-        private Part partUnderCursor = null;
+        private bool showTweakables = false;
+        private bool showColliders = false;
+        private TweakableWindow tweakableWindow = null;
+        private ColliderWindow colliderWindow = null;
+
+        public PartEditionWindow()
+        {
+            dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
+        }
+
+        public void Start()
+        {
+            tweakableWindow = gameObject.AddComponent<TweakableWindow>();
+            colliderWindow = gameObject.AddComponent<ColliderWindow>();
+        }
 
         public void Update()
         {
-            if (popupDialog != null)
+            if (IsVisible() || tweakableWindow.IsVisible() || colliderWindow.IsVisible())
             {
-                bool partValid = ValidatePart();
-
-                if (partValid)
-                {
-                    partUnderCursor = PreciseEditor.GetPartUnderCursor();
-                }
+                ValidatePart();
             }
         }
 
         public void Show(Part part)
         {
+            Hide();
+
+			this.part = part;
+            if (!part)
+            {
+                return;
+            }
+
             Vector3 position = part.transform.position;
             Vector3 localPosition = part.transform.localPosition;
             Quaternion rotation = part.transform.rotation;
             Quaternion localRotation = part.transform.localRotation;
-
-            this.part = part;
-            DismissDialog();
 
             DialogGUISpace spaceAxisLeft = new DialogGUISpace(160f);
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
@@ -94,8 +104,10 @@ namespace PreciseEditor
             DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIToggleButton toggleButtonTweakables = new DialogGUIToggleButton(showTweakables, "Tweakables", delegate { ToggleTweakables(); }, -1, LINE_HEIGHT);
+            DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
-            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
+            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { CloseWindow(); }, 140f, LINE_HEIGHT, true);
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
@@ -104,33 +116,17 @@ namespace PreciseEditor
                 new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, spaceTransform, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, spaceTransform, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
                 new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
                 new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, spaceTransform, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, spaceTransform, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
-                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, spaceTransform, labelDeltaRotation, inputDeltaRotation)
+                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, spaceTransform, labelDeltaRotation, inputDeltaRotation),
+                new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonColliders)
             };
-
-            List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
-
-            foreach (var tweakable in part.GetTweakables())
-            {
-                var labelField = new DialogGUILabel(FormatLabel(tweakable.Label), LABEL_WIDTH, LINE_HEIGHT);
-                var inputField = new DialogGUITextInput(
-                    tweakable.GetValue(),
-                    false, MAXLENGTH,
-                    value => tweakable.SetValueWithSymmetry(value),
-                    () => tweakable.GetValue(),
-                    TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-                dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
-                partModuleInputList.Add(inputField);
-            }
-
-            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(GetBoxColliderBoundsDialogGUIBox(), GetPartUnderCursorDialogGUIBox()));
             dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
 
             string windowTitle = FormatLabel("Precise Editor - ") + part.partInfo.title;
-            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
+            dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
             popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
-            popupDialog.OnDismiss = SaveWindowPosition;
-            popupDialog.onDestroy.AddListener(OnPopupDialogDestroy);
+            popupDialog.onDestroy.AddListener(SaveWindowPosition);
+            popupDialog.onDestroy.AddListener(RemoveControlLock);
 
             SetTextInputListeners(inputPositionX);
             SetTextInputListeners(inputPositionY);
@@ -147,100 +143,53 @@ namespace PreciseEditor
             SetTextInputListeners(inputDeltaPosition);
             SetTextInputListeners(inputDeltaRotation);
 
-            foreach (DialogGUITextInput partModuleInput in partModuleInputList)
+            if (showTweakables)
             {
-                SetTextInputListeners(partModuleInput);
+                tweakableWindow.Show(part.GetTweakables());
+            }
+
+            if (showColliders)
+            {
+                colliderWindow.Show(part);
             }
         }
 
-        private DialogGUIBox GetBoxColliderBoundsDialogGUIBox()
+        private bool ToggleTweakables()
         {
-            DialogGUILabel labelColliderBounds = new DialogGUILabel(FormatLabel("Collider Bounds"), 100, 16);
-            DialogGUILabel labelColliderCenter = new DialogGUILabel(FormatLabel("Center"), 50, 16);
-            DialogGUILabel labelColliderCenterValue = new DialogGUILabel(delegate { return GetColliderCenter(); });
-            DialogGUILabel labelColliderExtents = new DialogGUILabel(FormatLabel("Extents"), 50, 16);
-            DialogGUILabel labelColliderExtentsValue = new DialogGUILabel(delegate { return GetColliderExtents(); });
-            DialogGUILabel labelColliderSize = new DialogGUILabel(FormatLabel("Size"), 50, 16);
-            DialogGUILabel labelColliderSizeValue = new DialogGUILabel(delegate { return GetColliderSize(); });
+            showTweakables = !showTweakables;
 
-            DialogGUIVerticalLayout layoutColliderBounds = new DialogGUIVerticalLayout
+            if (showTweakables)
             {
-                children = {
-                    labelColliderBounds,
-                    new DialogGUIHorizontalLayout(labelColliderCenter, labelColliderCenterValue),
-                    new DialogGUIHorizontalLayout(labelColliderExtents, labelColliderExtentsValue),
-                    new DialogGUIHorizontalLayout(labelColliderSize, labelColliderSizeValue)
-                },
-                padding = new RectOffset(5, 5, 5, 5)
-            };
-
-            return new DialogGUIBox("", 217, 90, null, layoutColliderBounds);
-        }
-
-        private DialogGUIBox GetPartUnderCursorDialogGUIBox()
-        {
-            DialogGUILabel labelPartUnderCursor = new DialogGUILabel(delegate { return GetPartUnderCursorTitle(); }, 297, 16);
-            DialogGUILabel labelDistanceToPart = new DialogGUILabel(FormatLabel("Distance To Part"), 150, 16);
-            DialogGUILabel labelDistanceToPartValue = new DialogGUILabel(delegate { return GetDistanceToPart(); });
-            DialogGUILabel labelDistanceBetweenColliders = new DialogGUILabel(FormatLabel("Distance Between Colliders"), 150, 16);
-            DialogGUILabel labelDistanceBetweenCollidersValue = new DialogGUILabel(delegate { return GetDistanceBetweenColliders(); });
-            DialogGUILabel labelColliderBoundsIntersects = new DialogGUILabel(FormatLabel("Collider Bounds Intersects"), 150, 16);
-            DialogGUILabel labelColliderBoundsIntersectsValue = new DialogGUILabel(delegate { return GetColliderBoundsIntersects(); });
-
-            DialogGUIVerticalLayout layoutPartUnderCursor = new DialogGUIVerticalLayout
-            {
-                children = {
-                    new DialogGUIHorizontalLayout(labelPartUnderCursor),
-                    new DialogGUIHorizontalLayout(labelDistanceToPart, labelDistanceToPartValue),
-                    new DialogGUIHorizontalLayout(labelDistanceBetweenColliders, labelDistanceBetweenCollidersValue),
-                    new DialogGUIHorizontalLayout(labelColliderBoundsIntersects, labelColliderBoundsIntersectsValue)
-                },
-                padding = new RectOffset(5, 5, 5, 5)
-            };
-
-            return new DialogGUIBox("", 307, 90, null, layoutPartUnderCursor);
-        }
-
-        private void SetTextInputListeners(DialogGUITextInput textInput)
-        {
-            TMP_InputField tmp_Input = textInput.uiItem.GetComponent<TMP_InputField>();
-            tmp_Input.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_Input.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
-        }
-
-        private void OnPopupDialogDestroy()
-        {
-            InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
-        }
-
-        private void OnSelectTextInput(string s)
-        {
-            InputLockManager.SetControlLock(ControlTypes.EDITOR_GIZMO_TOOLS | ControlTypes.EDITOR_ROOT_REFLOW, CONTROL_LOCK_ID);
-        }
-
-        private void OnDeselectTextInput(string s)
-        {
-            InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
-        }
-
-        private void SaveWindowPosition()
-        {
-            if (popupDialog)
-            {
-                RectTransform rectTransform = popupDialog.GetComponent<RectTransform>();
-                Vector3 position = rectTransform.position / GameSettings.UI_SCALE;
-                dialogRect.x = position.x / Screen.width + 0.5f;
-                dialogRect.y = position.y / Screen.height + 0.5f;
+                tweakableWindow.Show(part.GetTweakables());
             }
+            else
+            {
+                tweakableWindow.Hide();
+            }
+
+            return showTweakables;
         }
 
-        private void DismissDialog()
+        private bool ToggleColliders()
         {
-            if (popupDialog)
+            showColliders = !showColliders;
+
+            if (showColliders)
             {
-                SaveWindowPosition();
-                popupDialog.Dismiss();
+                colliderWindow.Show(part);
             }
+            else
+            {
+                colliderWindow.Hide();
+            }
+
+            return showColliders;
+        }
+
+        private void CloseWindow()
+        {
+            part = null;
+            Hide();
         }
 
         private bool ValidatePart()
@@ -249,7 +198,9 @@ namespace PreciseEditor
 
             if (!partValid)
             {
-                DismissDialog();
+                Hide();
+                tweakableWindow.Hide();
+                colliderWindow.Hide();
             }
 
             return partValid;
@@ -258,57 +209,6 @@ namespace PreciseEditor
         private string GetPartName()
         {
             return part.partInfo.title;
-        }
-
-        private string GetColliderCenter()
-        {
-            return part.collider.bounds.center.ToString(FORMAT);
-        }
-
-        private string GetColliderExtents()
-        {
-            return part.collider.bounds.extents.ToString(FORMAT);
-        }
-
-        private string GetColliderSize()
-        {
-            return part.collider.bounds.size.ToString(FORMAT);
-        }
-
-        private float GetDistanceBetweenIntervals(float center1, float min1, float max1, float center2, float min2, float max2)
-        {
-            float distance = ((center2 - center1) > 0) ? (min2 - max1) : (min1 - max2);
-
-            return (distance < 0) ? 0 : distance;
-        }
-
-        private Vector3 GetDistanceBetweenBounds(Bounds bounds1, Bounds bounds2)
-        {
-            float distanceX = GetDistanceBetweenIntervals(bounds1.center.x, bounds1.min.x, bounds1.max.x, bounds2.center.x, bounds2.min.x, bounds2.max.x);
-            float distanceY = GetDistanceBetweenIntervals(bounds1.center.y, bounds1.min.y, bounds1.max.y, bounds2.center.y, bounds2.min.y, bounds2.max.y);
-            float distanceZ = GetDistanceBetweenIntervals(bounds1.center.z, bounds1.min.z, bounds1.max.z, bounds2.center.z, bounds2.min.z, bounds2.max.z);
-
-            return new Vector3(distanceX, distanceY, distanceZ);
-        }
-
-        private string GetPartUnderCursorTitle()
-        {
-            return partUnderCursor ? partUnderCursor.partInfo.title : "";
-        }
-
-        private string GetDistanceToPart()
-        {
-            return partUnderCursor ? (partUnderCursor.transform.position - part.transform.position).ToString(FORMAT) : "";
-        }
-
-        private string GetDistanceBetweenColliders()
-        {
-            return partUnderCursor ? GetDistanceBetweenBounds(part.collider.bounds, partUnderCursor.collider.bounds).ToString(FORMAT) : "";
-        }
-
-        private string GetColliderBoundsIntersects()
-        {
-            return partUnderCursor ? part.collider.bounds.Intersects(partUnderCursor.collider.bounds).ToString() : "";
         }
 
         private string SetPosition(int vectorIndex, string value, Space space)
@@ -381,11 +281,6 @@ namespace PreciseEditor
             eulerAngles[vectorIndex] = inverse ? -deltaRotation : deltaRotation;
 
             PartTransform.Rotate(part, eulerAngles, space);
-        }
-
-        private string FormatLabel(string label)
-        {
-            return "<color=\"white\">" + label + "</color>";
         }
     }
 }

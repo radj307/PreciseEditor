@@ -13,8 +13,8 @@ namespace PreciseEditor
         public void Start()
         {
             Instance = this;
-            partEditionWindow = this.gameObject.AddComponent<PartEditionWindow>();
-            vesselWindow = this.gameObject.AddComponent<VesselWindow>();
+            partEditionWindow = gameObject.AddComponent<PartEditionWindow>();
+            vesselWindow = gameObject.AddComponent<VesselWindow>();
         }
 
         public void Update()
@@ -33,10 +33,12 @@ namespace PreciseEditor
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             EditorLogic editorLogic = EditorLogic.fetch;
+
             if (editorLogic && Physics.Raycast(ray, out RaycastHit rayCastHit))
             {
                 return editorLogic.ship.Parts.Find(p => p.gameObject == rayCastHit.transform.gameObject);
             }
+
             return null;
         }
     }
