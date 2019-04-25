@@ -22,10 +22,10 @@ namespace PreciseEditor
             DialogGUILabel labelCenterOfLift = new DialogGUILabel(FormatLabel("Center of Lift"), LABEL_WIDTH, HEIGHT);
             DialogGUILabel labelCenterOfThrust = new DialogGUILabel(FormatLabel("Center of Thrust"), LABEL_WIDTH, HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
-            DialogGUILabel valueCenterOfMass = new DialogGUILabel(this.GetCenterOfMass, VALUE_WIDTH, HEIGHT);
-            DialogGUILabel valueCenterOfLift = new DialogGUILabel(this.GetCenterOfLift, VALUE_WIDTH, HEIGHT);
-            DialogGUILabel valueCenterOfThrust = new DialogGUILabel(this.GetCenterOfThrust, VALUE_WIDTH, HEIGHT);
-            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { }, 140f, HEIGHT, true);
+            DialogGUILabel valueCenterOfMass = new DialogGUILabel(GetCenterOfMass, VALUE_WIDTH, HEIGHT);
+            DialogGUILabel valueCenterOfLift = new DialogGUILabel(GetCenterOfLift, VALUE_WIDTH, HEIGHT);
+            DialogGUILabel valueCenterOfThrust = new DialogGUILabel(GetCenterOfThrust, VALUE_WIDTH, HEIGHT);
+            DialogGUIButton buttonClose = new DialogGUIButton("Close", delegate { }, 140f, HEIGHT, true);
 
             dialog = new MultiOptionDialog("vesselWindowDialog", "", title, HighLogic.UISkin, dialogRect,
                 new DialogGUIFlexibleSpace(),
