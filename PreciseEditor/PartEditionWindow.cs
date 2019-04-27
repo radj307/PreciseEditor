@@ -8,13 +8,14 @@ namespace PreciseEditor
     public class PartEditionWindow : BaseWindow
     {
         const int MAXLENGTH = 8;
-        const float LABEL_WIDTH = 100;
+        const float LABEL_WIDTH = 75f;
         const float LINE_HEIGHT = 25f;
         const string FORMAT = "F4";
 
         private float deltaPosition = 0.2f;
         private float deltaRotation = 15f;
         private Part part = null;
+        private Space referenceSpace = Space.World;
         private bool showTweakables = false;
         private bool showColliders = false;
         private TweakableWindow tweakableWindow = null;
@@ -22,7 +23,7 @@ namespace PreciseEditor
 
         public PartEditionWindow()
         {
-            dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
+            dialogRect = new Rect(0.5f, 0.5f, 600f, 175f);
         }
 
         public void Start()
@@ -49,61 +50,39 @@ namespace PreciseEditor
                 return;
             }
 
-            Vector3 position = part.transform.position;
-            Vector3 localPosition = part.transform.localPosition;
-            Quaternion rotation = part.transform.rotation;
-            Quaternion localRotation = part.transform.localRotation;
-
-            DialogGUISpace spaceAxisLeft = new DialogGUISpace(160f);
+            DialogGUISpace spaceAxisLeft = new DialogGUISpace(30f);
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
+            DialogGUISpace spaceAxisRight = new DialogGUISpace(80f);
+            DialogGUISpace spaceTransform = new DialogGUISpace(15f);
+            DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ReferenceSpaceToggle, 100f, LINE_HEIGHT, false);
             DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT, LINE_HEIGHT);
             DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Absolute Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelLocalPosition = new DialogGUILabel(FormatLabel("Local Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Absolute Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelLocalRotation = new DialogGUILabel(FormatLabel("Local Rotation"), LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("-/+"), LINE_HEIGHT, LINE_HEIGHT);
+            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Position"), LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Rotation"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
             DialogGUILabel labelDeltaRotation = new DialogGUILabel(FormatLabel("-/+ Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUISpace spaceTransform = new DialogGUISpace(15f);
-            DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionZ = new DialogGUITextInput(position.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.World); }, delegate { return GetPosition(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionX = new DialogGUITextInput(localPosition.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.Self); }, delegate { return GetPosition(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionY = new DialogGUITextInput(localPosition.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.Self); }, delegate { return GetPosition(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionZ = new DialogGUITextInput(localPosition.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.Self); }, delegate { return GetPosition(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationX = new DialogGUITextInput(rotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.World); }, delegate { return GetRotation(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationY = new DialogGUITextInput(rotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.World); }, delegate { return GetRotation(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationZ = new DialogGUITextInput(rotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.World); }, delegate { return GetRotation(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationX = new DialogGUITextInput(localRotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.Self); }, delegate { return GetRotation(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationY = new DialogGUITextInput(localRotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.Self); }, delegate { return GetRotation(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationZ = new DialogGUITextInput(localRotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.Self); }, delegate { return GetRotation(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput(deltaPosition.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput(deltaRotation.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUIButton buttonPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUITextInput inputPositionX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, referenceSpace); }, delegate { return GetPosition(0, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionY = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, referenceSpace); }, delegate { return GetPosition(1, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionZ = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, referenceSpace); }, delegate { return GetPosition(2, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, referenceSpace); }, delegate { return GetRotation(0, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationY = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, referenceSpace); }, delegate { return GetRotation(1, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationZ = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, referenceSpace); }, delegate { return GetRotation(2, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUIButton buttonPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIToggleButton toggleButtonTweakables = new DialogGUIToggleButton(showTweakables, "Tweakables", delegate { ToggleTweakables(); }, -1, LINE_HEIGHT);
             DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
@@ -111,15 +90,11 @@ namespace PreciseEditor
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
-                new DialogGUIHorizontalLayout(spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ),
-                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
-                new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, spaceTransform, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, spaceTransform, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
-                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
-                new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, spaceTransform, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, spaceTransform, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
-                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, spaceTransform, labelDeltaRotation, inputDeltaRotation),
+                new DialogGUIHorizontalLayout(buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
+                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
+                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation),
                 new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonColliders)
             };
-            dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
 
             string windowTitle = FormatLabel("Precise Editor - ") + part.partInfo.title;
@@ -128,18 +103,22 @@ namespace PreciseEditor
             popupDialog.onDestroy.AddListener(SaveWindowPosition);
             popupDialog.onDestroy.AddListener(RemoveControlLock);
 
+            Color axisColorRed = new Color(1.0f, 0.21f, 0f, 1.0f);
+            Color axisColorGreen = new Color(0f, 0.98f, 0f, 1.0f);
+            Color axisColorCyan = new Color(0f, 0.85f, 1.0f, 1.0f);
+            SetTextInputColor(inputPositionX, axisColorRed);
+            SetTextInputColor(inputPositionY, axisColorGreen);
+            SetTextInputColor(inputPositionZ, axisColorCyan);
+            SetTextInputColor(inputRotationX, axisColorRed);
+            SetTextInputColor(inputRotationY, axisColorGreen);
+            SetTextInputColor(inputRotationZ, axisColorCyan);
+
             SetTextInputListeners(inputPositionX);
             SetTextInputListeners(inputPositionY);
             SetTextInputListeners(inputPositionZ);
-            SetTextInputListeners(inputLocalPositionX);
-            SetTextInputListeners(inputLocalPositionY);
-            SetTextInputListeners(inputLocalPositionZ);
             SetTextInputListeners(inputRotationX);
             SetTextInputListeners(inputRotationY);
             SetTextInputListeners(inputRotationZ);
-            SetTextInputListeners(inputLocalRotationX);
-            SetTextInputListeners(inputLocalRotationY);
-            SetTextInputListeners(inputLocalRotationZ);
             SetTextInputListeners(inputDeltaPosition);
             SetTextInputListeners(inputDeltaRotation);
 
@@ -152,6 +131,16 @@ namespace PreciseEditor
             {
                 colliderWindow.Show(part);
             }
+        }
+
+        private string GetReferenceSpaceLabel()
+        {
+            return (referenceSpace == Space.Self) ? "Local" : "Absolute";
+        }
+
+        private void ReferenceSpaceToggle()
+        {
+            referenceSpace = (referenceSpace == Space.World) ? Space.Self : Space.World;
         }
 
         private bool ToggleTweakables()

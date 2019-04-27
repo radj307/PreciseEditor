@@ -27,7 +27,7 @@ namespace PreciseEditor
                 {
                     var labelField = new DialogGUILabel(FormatLabel(tweakable.Label), 100f, 25f);
                     var inputField = new DialogGUITextInput(
-                        tweakable.GetValue(),
+                        "",
                         false, MAXLENGTH,
                         value => tweakable.SetValueWithSymmetry(value),
                         () => tweakable.GetValue(),

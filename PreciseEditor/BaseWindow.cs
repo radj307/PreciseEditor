@@ -38,10 +38,15 @@ namespace PreciseEditor
                 dialogRect.y = position.y / Screen.height + 0.5f;
             }
         }
-
-        protected string FormatLabel(string label)
+		
+		protected string FormatLabel(string label)
         {
             return "<color=\"white\">" + label + "</color>";
+        }
+
+        protected void SetTextInputColor(DialogGUITextInput textInput, Color color)
+        {
+            textInput.uiItem.GetComponent<TMP_InputField>().textComponent.color = color;
         }
 
         protected void RemoveControlLock()
