@@ -1,5 +1,14 @@
 ## CHANGELOG
 
+### 1.2.0
+- Changed max number of input digits from 14 to 8.
+- Tweaking Thrust Limiter now update DeltaV information.
+- Corrected windows position with UI scaling other than 100%.
+- Moved tweakables and colliders information in separate windows which can be toggled on/off.
+- A button to switch between Absolute and Local mode has been added. Less rows needed.
+- Position and Rotation values are color coded like the offset and rotation gizmos.
+- The axis of the used coordinate system are shown on the selected part.
+
 ### 1.1.1
 - Recompiled for KSP 1.7.0
 
