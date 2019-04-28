@@ -20,6 +20,8 @@ namespace PreciseEditor
         private bool showColliders = false;
         private TweakableWindow tweakableWindow = null;
         private ColliderWindow colliderWindow = null;
+        private AxisLines axisLines = null;
+        private bool reopenWindow = false;
 
         public PartEditionWindow()
         {
@@ -30,6 +32,7 @@ namespace PreciseEditor
         {
             tweakableWindow = gameObject.AddComponent<TweakableWindow>();
             colliderWindow = gameObject.AddComponent<ColliderWindow>();
+            axisLines = gameObject.AddComponent<AxisLines>();
         }
 
         public void Update()
@@ -37,14 +40,21 @@ namespace PreciseEditor
             if (IsVisible() || tweakableWindow.IsVisible() || colliderWindow.IsVisible())
             {
                 ValidatePart();
+                axisLines.Update(part, referenceSpace);
             }
         }
 
         public void Show(Part part)
         {
-            Hide();
+            this.part = part;
 
-			this.part = part;
+            if (IsVisible())
+            {
+                Hide();
+                reopenWindow = true;
+                return;
+            }
+
             if (!part)
             {
                 return;
@@ -55,14 +65,12 @@ namespace PreciseEditor
             DialogGUISpace spaceAxisRight = new DialogGUISpace(80f);
             DialogGUISpace spaceTransform = new DialogGUISpace(15f);
             DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ReferenceSpaceToggle, 100f, LINE_HEIGHT, false);
-            DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("-/+"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDeltaRotation = new DialogGUILabel(FormatLabel("-/+ Rotation"), LABEL_WIDTH, LINE_HEIGHT);
+            DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT);
+            DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT);
+            DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT);
+            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("-/+"), LINE_HEIGHT);
+            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Position"), LABEL_WIDTH);
+            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Rotation"), LABEL_WIDTH);
             DialogGUITextInput inputPositionX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, referenceSpace); }, delegate { return GetPosition(0, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUITextInput inputPositionY = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, referenceSpace); }, delegate { return GetPosition(1, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
             DialogGUITextInput inputPositionZ = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, referenceSpace); }, delegate { return GetPosition(2, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
@@ -90,9 +98,9 @@ namespace PreciseEditor
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
-                new DialogGUIHorizontalLayout(buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
-                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
-                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation),
                 new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonColliders)
             };
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
@@ -102,16 +110,14 @@ namespace PreciseEditor
             popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
             popupDialog.onDestroy.AddListener(SaveWindowPosition);
             popupDialog.onDestroy.AddListener(RemoveControlLock);
+            popupDialog.onDestroy.AddListener(OnPopupDialogDestroy);
 
-            Color axisColorRed = new Color(1.0f, 0.21f, 0f, 1.0f);
-            Color axisColorGreen = new Color(0f, 0.98f, 0f, 1.0f);
-            Color axisColorCyan = new Color(0f, 0.85f, 1.0f, 1.0f);
-            SetTextInputColor(inputPositionX, axisColorRed);
-            SetTextInputColor(inputPositionY, axisColorGreen);
-            SetTextInputColor(inputPositionZ, axisColorCyan);
-            SetTextInputColor(inputRotationX, axisColorRed);
-            SetTextInputColor(inputRotationY, axisColorGreen);
-            SetTextInputColor(inputRotationZ, axisColorCyan);
+            SetTextInputColor(inputPositionX, axisLines.red);
+            SetTextInputColor(inputPositionY, axisLines.green);
+            SetTextInputColor(inputPositionZ, axisLines.cyan);
+            SetTextInputColor(inputRotationX, axisLines.red);
+            SetTextInputColor(inputRotationY, axisLines.green);
+            SetTextInputColor(inputRotationZ, axisLines.cyan);
 
             SetTextInputListeners(inputPositionX);
             SetTextInputListeners(inputPositionY);
@@ -130,6 +136,17 @@ namespace PreciseEditor
             if (showColliders)
             {
                 colliderWindow.Show(part);
+            }
+
+            axisLines.Show(part, referenceSpace);
+        }
+
+        private void OnPopupDialogDestroy()
+        {
+            axisLines.Hide();
+            if (reopenWindow)
+            {
+                Show(part);
             }
         }
 
@@ -178,6 +195,9 @@ namespace PreciseEditor
         private void CloseWindow()
         {
             part = null;
+            axisLines.Hide();
+            tweakableWindow.Hide();
+            colliderWindow.Hide();
             Hide();
         }
 
@@ -187,9 +207,10 @@ namespace PreciseEditor
 
             if (!partValid)
             {
-                Hide();
+                axisLines.Hide();
                 tweakableWindow.Hide();
                 colliderWindow.Hide();
+                Hide();
             }
 
             return partValid;

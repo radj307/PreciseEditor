@@ -13,7 +13,7 @@ namespace PreciseEditor
         {
             Hide();
 
-            string title = FormatLabel("Precise Editor - ") + "Vessel Window";
+            string title = FormatLabel("Precise Editor - ") + "Vessel";
             const float LABEL_WIDTH = 100;
             const float VALUE_WIDTH = 150;
             const float HEIGHT = 25f;

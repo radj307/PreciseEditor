@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AppLauncherButton.cs" />
     <Compile Include="BaseWindow.cs" />
+    <Compile Include="AxisLines.cs" />
     <Compile Include="ColliderWindow.cs" />
     <Compile Include="TweakablePartModules.cs" />
     <Compile Include="PartEditionWindow.cs" />
