@@ -40,7 +40,7 @@ namespace PreciseEditor
             if (IsVisible() || tweakableWindow.IsVisible() || colliderWindow.IsVisible())
             {
                 ValidatePart();
-                axisLines.Update(part, referenceSpace);
+                axisLines.UpdateAxis(part, referenceSpace);
             }
         }
 

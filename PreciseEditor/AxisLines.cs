@@ -18,16 +18,16 @@ namespace PreciseEditor
 
         public void Show(Part part, Space space = Space.World)
         {
-            Material material = new Material(Shader.Find("Particles/Additive"));
+            Material material = new Material(Shader.Find("KSP/UnlitColor"));
             GameObject axisX = CreateAxis("AxisX", material, red);
             GameObject axisY = CreateAxis("AxisY", material, green);
             GameObject axisZ = CreateAxis("AxisZ", material, cyan);
             axis = new GameObject[] { axisX, axisY, axisZ };
-            Update(part, space);
+            UpdateAxis(part, space);
             visible = true;
         }
 
-        public void Update(Part part, Space space = Space.World)
+        public void UpdateAxis(Part part, Space space = Space.World)
         {
             bool isRootPart = (part.parent == null);
             if (visible && space == axisSpace && part.transform.position == transform.position && (isRootPart || part.parent.transform.rotation == transform.rotation))
