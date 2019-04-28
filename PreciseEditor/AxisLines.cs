@@ -7,6 +7,7 @@ namespace PreciseEditor
         public Color red, green, cyan;
         protected GameObject[] axis;
         protected Space axisSpace;
+        protected bool visible = false;
 
         public void Start()
         {
@@ -23,14 +24,13 @@ namespace PreciseEditor
             GameObject axisZ = CreateAxis("AxisZ", material, cyan);
             axis = new GameObject[] { axisX, axisY, axisZ };
             Update(part, space);
+            visible = true;
         }
 
         public void Update(Part part, Space space = Space.World)
         {
             bool isRootPart = (part.parent == null);
-            if (part.transform.position == transform.position &&
-               (isRootPart || part.parent.transform.rotation == transform.rotation) &&
-                space == axisSpace)
+            if (visible && space == axisSpace && part.transform.position == transform.position && (isRootPart || part.parent.transform.rotation == transform.rotation))
             {
                 return;
             }
@@ -57,6 +57,7 @@ namespace PreciseEditor
                 Destroy(axis[index]);
                 axis[index] = null;
             }
+            visible = false;
         }
 
         private GameObject CreateAxis(string name, Material material, Color color)
