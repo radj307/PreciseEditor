@@ -15,13 +15,13 @@ namespace PreciseEditor
         private float deltaPosition = 0.2f;
         private float deltaRotation = 15f;
         private Part part = null;
+        private Part newPart = null;
         private Space referenceSpace = Space.World;
         private bool showTweakables = false;
         private bool showColliders = false;
         private TweakableWindow tweakableWindow = null;
         private ColliderWindow colliderWindow = null;
         private AxisLines axisLines = null;
-        private bool reopenWindow = false;
 
         public PartEditionWindow()
         {
@@ -46,19 +46,14 @@ namespace PreciseEditor
 
         public void Show(Part part)
         {
-            this.part = part;
-
             if (IsVisible())
             {
                 Hide();
-                reopenWindow = true;
+                newPart = part;
                 return;
             }
 
-            if (!part)
-            {
-                return;
-            }
+            this.part = part;
 
             DialogGUISpace spaceAxisLeft = new DialogGUISpace(30f);
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
@@ -144,9 +139,10 @@ namespace PreciseEditor
         private void OnPopupDialogDestroy()
         {
             axisLines.Hide();
-            if (reopenWindow)
+            if (newPart)
             {
-                Show(part);
+                Show(newPart);
+                newPart = null;
             }
         }
 
