@@ -29,6 +29,12 @@ namespace PreciseEditor
 
         public void UpdateAxis(Part part, Space space = Space.World)
         {
+            if (part == null)
+            {
+                Hide();
+                return;
+            }
+
             bool isRootPart = (part.parent == null);
             if (visible && space == axisSpace && part.transform.position == transform.position && (isRootPart || part.parent.transform.rotation == transform.rotation))
             {
@@ -78,7 +84,7 @@ namespace PreciseEditor
 
         private Vector3[] GetWorldSpaceAxisBounds(Vector3 position, int vectorIndex)
         {
-            Bounds bounds = EditorLogic.fetch.editorBounds;
+            Bounds bounds = EditorBounds.Instance.constructionBounds;
             Vector3 start, end;
             start = end = position;
             start[vectorIndex] = bounds.min[vectorIndex];
@@ -91,7 +97,7 @@ namespace PreciseEditor
         {
             Ray rayToStart = new Ray(axisPosition, -axisDirection);
             Ray rayToEnd = new Ray(axisPosition, axisDirection);
-            Bounds bounds = EditorLogic.fetch.editorBounds;
+            Bounds bounds = EditorBounds.Instance.constructionBounds;
             bool startFits = bounds.IntersectRay(rayToStart, out float lengthToStart);
             bool endFits = bounds.IntersectRay(rayToEnd, out float lengthToEnd);
             Vector3 start = rayToStart.GetPoint(lengthToStart);
