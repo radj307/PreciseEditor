@@ -219,11 +219,39 @@ namespace PreciseEditor
 
         private string SetPosition(int vectorIndex, string value, Space space)
         {
-            float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
-            Vector3 position = space == Space.Self ? part.transform.localPosition : part.transform.position;
-            position[vectorIndex] = fValue;
-            PartTransform.SetPosition(part, position, space);
+            Vector3 position = GetWorldPositionToBeSet(vectorIndex, value, space);
+            Bounds partBounds = part.collider.bounds;
+            if (!AreBoundsOutOfHangarBounds(partBounds))
+            {
+                partBounds.center = position;
+
+                if (AreBoundsOutOfHangarBounds(partBounds)) {
+                    return value;
+                }
+            }
+            if (position == part.transform.position)
+            {
+                return value;
+            }
+
+            PartTransform.SetPosition(part, position, Space.World);
             return value;
+        }
+
+        private Vector3 GetWorldPositionToBeSet(int vectorIndex, string value, Space space)
+        {
+            float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
+            Vector3 position = (space == Space.Self) ? part.transform.localPosition : part.transform.position;
+            position[vectorIndex] = fValue;
+
+            return (space == Space.Self && part.parent != null) ? part.parent.transform.TransformPoint(position) : position;
+        }
+
+        private bool AreBoundsOutOfHangarBounds(Bounds bounds)
+        {
+            Bounds editorBounds = EditorBounds.Instance.constructionBounds;
+
+            return !editorBounds.Contains(bounds.min) || !editorBounds.Contains(bounds.max);
         }
 
         private string GetPosition(int vectorIndex, Space space)
