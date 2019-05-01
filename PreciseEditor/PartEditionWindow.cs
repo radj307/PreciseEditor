@@ -25,7 +25,7 @@ namespace PreciseEditor
 
         public PartEditionWindow()
         {
-            dialogRect = new Rect(0.5f, 0.5f, 600f, 175f);
+            dialogRect = new Rect(0.5f, 0.75f, 600f, 175f);
         }
 
         public void Start()
