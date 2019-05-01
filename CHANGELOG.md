@@ -8,6 +8,7 @@
 - A button to switch between Absolute and Local mode has been added. Less rows needed.
 - Position and Rotation values are color coded like the offset and rotation gizmos.
 - The axis of the used coordinate system are shown on the selected part.
+- Basic editor bounds check when setting position.
 
 ### 1.1.1
 - Recompiled for KSP 1.7.0
