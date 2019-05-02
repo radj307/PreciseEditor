@@ -223,9 +223,10 @@ namespace PreciseEditor
             Bounds partBounds = part.collider.bounds;
             if (!AreBoundsOutOfHangarBounds(partBounds))
             {
-                partBounds.center = position;
-
-                if (AreBoundsOutOfHangarBounds(partBounds)) {
+                Vector3 boundsOffset = part.collider.bounds.center - part.transform.position;
+                partBounds.center = position + boundsOffset;
+                if (AreBoundsOutOfHangarBounds(partBounds))
+                {
                     return value;
                 }
             }
@@ -251,7 +252,7 @@ namespace PreciseEditor
         {
             Bounds editorBounds = EditorBounds.Instance.constructionBounds;
 
-            return !editorBounds.Contains(bounds.min) || !editorBounds.Contains(bounds.max);
+            return !(editorBounds.Contains(bounds.min) && editorBounds.Contains(bounds.max));
         }
 
         private string GetPosition(int vectorIndex, Space space)
