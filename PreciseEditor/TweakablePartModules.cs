@@ -36,6 +36,8 @@ namespace PreciseEditor
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, symmetryPart);
             }
 
+            EditorLogic.fetch.ship.vesselDeltaV.SetCalcsDirty(false, false);
+
             return valueStr;
         }
     }

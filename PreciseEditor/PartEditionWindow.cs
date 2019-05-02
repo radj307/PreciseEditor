@@ -1,247 +1,200 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 
 namespace PreciseEditor
 {
-    public class PartEditionWindow : MonoBehaviour
+    public class PartEditionWindow : BaseWindow
     {
-        const int MAXLENGTH = 14;
-        const float LABEL_WIDTH = 100;
+        const int MAXLENGTH = 8;
+        const float LABEL_WIDTH = 75f;
         const float LINE_HEIGHT = 25f;
-        const float LINE_SPACER = 4f;
-        const float TRANSFORM_SPACER_WIDTH = 15f;
         const string FORMAT = "F4";
-        const string CONTROL_LOCK_ID = "PartEditionWindowLock";
 
-        private PopupDialog popupDialog = null;
-        private Rect dialogRect = new Rect(0.5f, 0.5f, 540f, 200f);
         private float deltaPosition = 0.2f;
         private float deltaRotation = 15f;
         private Part part = null;
-        private Part partUnderCursor = null;
+        private Part newPart = null;
+        private Space referenceSpace = Space.World;
+        private bool showTweakables = false;
+        private bool showColliders = false;
+        private TweakableWindow tweakableWindow = null;
+        private ColliderWindow colliderWindow = null;
+        private AxisLines axisLines = null;
+
+        public PartEditionWindow()
+        {
+            dialogRect = new Rect(0.5f, 0.75f, 600f, 175f);
+        }
+
+        public void Start()
+        {
+            tweakableWindow = gameObject.AddComponent<TweakableWindow>();
+            colliderWindow = gameObject.AddComponent<ColliderWindow>();
+            axisLines = gameObject.AddComponent<AxisLines>();
+        }
 
         public void Update()
         {
-            if (popupDialog != null)
+            if (IsVisible() || tweakableWindow.IsVisible() || colliderWindow.IsVisible())
             {
-                bool partValid = ValidatePart();
-
-                if (partValid)
-                {
-                    partUnderCursor = PreciseEditor.GetPartUnderCursor();
-                }
+                ValidatePart();
+                axisLines.UpdateAxis(part, referenceSpace);
             }
         }
 
         public void Show(Part part)
         {
-            Vector3 position = part.transform.position;
-            Vector3 localPosition = part.transform.localPosition;
-            Quaternion rotation = part.transform.rotation;
-            Quaternion localRotation = part.transform.localRotation;
+            if (IsVisible())
+            {
+                Hide();
+                newPart = part;
+                return;
+            }
 
             this.part = part;
-            DismissDialog();
 
-            DialogGUILabel labelAxisLeftSpacer = new DialogGUILabel("", 160f, LINE_HEIGHT);
-            DialogGUILabel labelAxisCenterSpacer = new DialogGUILabel("", 115f, LINE_HEIGHT);
-            DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT, LINE_HEIGHT);
-            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Absolute Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelLocalPosition = new DialogGUILabel(FormatLabel("Local Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Absolute Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelLocalRotation = new DialogGUILabel(FormatLabel("Local Rotation"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDeltaPosition = new DialogGUILabel(FormatLabel("-/+ Position"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelDeltaAngle = new DialogGUILabel(FormatLabel("-/+ Angle"), LABEL_WIDTH, LINE_HEIGHT);
-            DialogGUILabel labelTransformSpacer = new DialogGUILabel("", TRANSFORM_SPACER_WIDTH, LINE_HEIGHT);
-            DialogGUITextInput inputPositionX = new DialogGUITextInput(position.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.World); }, delegate { return GetPosition(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionY = new DialogGUITextInput(position.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.World); }, delegate { return GetPosition(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputPositionZ = new DialogGUITextInput(position.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.World); }, delegate { return GetPosition(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionX = new DialogGUITextInput(localPosition.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, Space.Self); }, delegate { return GetPosition(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionY = new DialogGUITextInput(localPosition.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, Space.Self); }, delegate { return GetPosition(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalPositionZ = new DialogGUITextInput(localPosition.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, Space.Self); }, delegate { return GetPosition(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationX = new DialogGUITextInput(rotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.World); }, delegate { return GetRotation(0, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationY = new DialogGUITextInput(rotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.World); }, delegate { return GetRotation(1, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputRotationZ = new DialogGUITextInput(rotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.World); }, delegate { return GetRotation(2, Space.World); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationX = new DialogGUITextInput(localRotation.eulerAngles.x.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, Space.Self); }, delegate { return GetRotation(0, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationY = new DialogGUITextInput(localRotation.eulerAngles.y.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, Space.Self); }, delegate { return GetRotation(1, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputLocalRotationZ = new DialogGUITextInput(localRotation.eulerAngles.z.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, Space.Self); }, delegate { return GetRotation(2, Space.Self); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput(deltaPosition.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput(deltaRotation.ToString(FORMAT), false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-            DialogGUIButton buttonPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.World); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUIButton buttonLocRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, Space.Self); }, LINE_HEIGHT, LINE_HEIGHT, false);
-            DialogGUILabel labelCloseButtonSpacer = new DialogGUILabel("", 185f, LINE_HEIGHT);
-            DialogGUIButton buttonClose = new DialogGUIButton("Close Window", delegate { SaveWindowPosition(); }, 140f, LINE_HEIGHT, true);
+            DialogGUISpace spaceAxisLeft = new DialogGUISpace(30f);
+            DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
+            DialogGUISpace spaceAxisRight = new DialogGUISpace(80f);
+            DialogGUISpace spaceTransform = new DialogGUISpace(15f);
+            DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ReferenceSpaceToggle, 100f, LINE_HEIGHT, false);
+            DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT);
+            DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT);
+            DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT);
+            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("-/+"), LINE_HEIGHT);
+            DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Position"), LABEL_WIDTH);
+            DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Rotation"), LABEL_WIDTH);
+            DialogGUITextInput inputPositionX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(0, value, referenceSpace); }, delegate { return GetPosition(0, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionY = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(1, value, referenceSpace); }, delegate { return GetPosition(1, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputPositionZ = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(2, value, referenceSpace); }, delegate { return GetPosition(2, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaPosition = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetDeltaPosition(value); }, delegate { return deltaPosition.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(0, value, referenceSpace); }, delegate { return GetRotation(0, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationY = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(1, value, referenceSpace); }, delegate { return GetRotation(1, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputRotationZ = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetRotation(2, value, referenceSpace); }, delegate { return GetRotation(2, referenceSpace); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUITextInput inputDeltaRotation = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetDeltaRotation(value); }, delegate { return deltaRotation.ToString(FORMAT); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
+            DialogGUIButton buttonPosXMinus = new DialogGUIButton("-", delegate { Translate(0, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosXPlus = new DialogGUIButton("+", delegate { Translate(0, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosYMinus = new DialogGUIButton("-", delegate { Translate(1, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIToggleButton toggleButtonTweakables = new DialogGUIToggleButton(showTweakables, "Tweakables", delegate { ToggleTweakables(); }, -1, LINE_HEIGHT);
+            DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
+            DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
+            DialogGUIButton buttonClose = new DialogGUIButton("Close", delegate { CloseWindow(); }, 140f, LINE_HEIGHT, true);
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
-                new DialogGUIHorizontalLayout(labelAxisLeftSpacer, labelX, labelAxisCenterSpacer, labelY, labelAxisCenterSpacer, labelZ),
-                new DialogGUIHorizontalLayout(labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, labelTransformSpacer, buttonPosYMinus, inputPositionY, buttonPosYPlus, labelTransformSpacer, buttonPosZMinus, inputPositionZ, buttonPosZPlus),
-                new DialogGUIHorizontalLayout(labelLocalPosition, buttonLocPosXMinus, inputLocalPositionX, buttonLocPosXPlus, labelTransformSpacer, buttonLocPosYMinus, inputLocalPositionY, buttonLocPosYPlus, labelTransformSpacer, buttonLocPosZMinus, inputLocalPositionZ, buttonLocPosZPlus),
-                new DialogGUIHorizontalLayout(labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, labelTransformSpacer, buttonRotYMinus, inputRotationY, buttonRotYPlus, labelTransformSpacer, buttonRotZMinus, inputRotationZ, buttonRotZPlus),
-                new DialogGUIHorizontalLayout(labelLocalRotation, buttonLocRotXMinus, inputLocalRotationX, buttonLocRotXPlus, labelTransformSpacer, buttonLocRotYMinus, inputLocalRotationY, buttonLocRotYPlus, labelTransformSpacer, buttonLocRotZMinus, inputLocalRotationZ, buttonLocRotZPlus),
-                new DialogGUIHorizontalLayout(labelDeltaPosition, inputDeltaPosition, labelTransformSpacer, labelDeltaAngle, inputDeltaRotation)
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation),
+                new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonColliders)
             };
-
-            List<DialogGUITextInput> partModuleInputList = new List<DialogGUITextInput>();
-
-            foreach (var tweakable in part.GetTweakables())
-            {
-                var labelField = new DialogGUILabel(FormatLabel(tweakable.Label), LABEL_WIDTH, LINE_HEIGHT);
-                var inputField = new DialogGUITextInput(
-                    tweakable.GetValue(),
-                    false, MAXLENGTH,
-                    value => tweakable.SetValueWithSymmetry(value),
-                    () => tweakable.GetValue(),
-                    TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
-                dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelField, inputField));
-                partModuleInputList.Add(inputField);
-            }
-
-            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(GetBoxColliderBoundsDialogGUIBox(), GetPartUnderCursorDialogGUIBox()));
-            dialogGUIBaseList.Add(new DialogGUIFlexibleSpace());
-            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(labelCloseButtonSpacer, buttonClose));
+            dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
 
             string windowTitle = FormatLabel("Precise Editor - ") + part.partInfo.title;
-            MultiOptionDialog dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
+            dialog = new MultiOptionDialog("partEditionDialog", "", windowTitle, HighLogic.UISkin, dialogRect, new DialogGUIVerticalLayout(dialogGUIBaseList.ToArray()));
             popupDialog = PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), dialog, false, HighLogic.UISkin, false);
-            popupDialog.OnDismiss = SaveWindowPosition;
+            popupDialog.onDestroy.AddListener(SaveWindowPosition);
+            popupDialog.onDestroy.AddListener(RemoveControlLock);
             popupDialog.onDestroy.AddListener(OnPopupDialogDestroy);
+
+            SetTextInputColor(inputPositionX, axisLines.red);
+            SetTextInputColor(inputPositionY, axisLines.green);
+            SetTextInputColor(inputPositionZ, axisLines.cyan);
+            SetTextInputColor(inputRotationX, axisLines.red);
+            SetTextInputColor(inputRotationY, axisLines.green);
+            SetTextInputColor(inputRotationZ, axisLines.cyan);
 
             SetTextInputListeners(inputPositionX);
             SetTextInputListeners(inputPositionY);
             SetTextInputListeners(inputPositionZ);
-            SetTextInputListeners(inputLocalPositionX);
-            SetTextInputListeners(inputLocalPositionY);
-            SetTextInputListeners(inputLocalPositionZ);
             SetTextInputListeners(inputRotationX);
             SetTextInputListeners(inputRotationY);
             SetTextInputListeners(inputRotationZ);
-            SetTextInputListeners(inputLocalRotationX);
-            SetTextInputListeners(inputLocalRotationY);
-            SetTextInputListeners(inputLocalRotationZ);
             SetTextInputListeners(inputDeltaPosition);
             SetTextInputListeners(inputDeltaRotation);
 
-            foreach (DialogGUITextInput partModuleInput in partModuleInputList)
+            if (showTweakables)
             {
-                SetTextInputListeners(partModuleInput);
+                tweakableWindow.Show(part.GetTweakables());
             }
-        }
 
-        private DialogGUIBox GetBoxColliderBoundsDialogGUIBox()
-        {
-            DialogGUILabel labelColliderBounds = new DialogGUILabel(FormatLabel("Collider Bounds"), 100, 16);
-            DialogGUILabel labelColliderCenter = new DialogGUILabel(FormatLabel("Center"), 50, 16);
-            DialogGUILabel labelColliderCenterValue = new DialogGUILabel(delegate { return GetColliderCenter(); });
-            DialogGUILabel labelColliderExtents = new DialogGUILabel(FormatLabel("Extents"), 50, 16);
-            DialogGUILabel labelColliderExtentsValue = new DialogGUILabel(delegate { return GetColliderExtents(); });
-            DialogGUILabel labelColliderSize = new DialogGUILabel(FormatLabel("Size"), 50, 16);
-            DialogGUILabel labelColliderSizeValue = new DialogGUILabel(delegate { return GetColliderSize(); });
-
-            DialogGUIVerticalLayout layoutColliderBounds = new DialogGUIVerticalLayout
+            if (showColliders)
             {
-                children = {
-                    labelColliderBounds,
-                    new DialogGUIHorizontalLayout(labelColliderCenter, labelColliderCenterValue),
-                    new DialogGUIHorizontalLayout(labelColliderExtents, labelColliderExtentsValue),
-                    new DialogGUIHorizontalLayout(labelColliderSize, labelColliderSizeValue)
-                },
-                padding = new RectOffset(5, 5, 5, 5)
-            };
+                colliderWindow.Show(part);
+            }
 
-            return new DialogGUIBox("", 217, 90, null, layoutColliderBounds);
-        }
-
-        private DialogGUIBox GetPartUnderCursorDialogGUIBox()
-        {
-            DialogGUILabel labelPartUnderCursor = new DialogGUILabel(delegate { return GetPartUnderCursorTitle(); }, 297, 16);
-            DialogGUILabel labelDistanceToPart = new DialogGUILabel(FormatLabel("Distance To Part"), 150, 16);
-            DialogGUILabel labelDistanceToPartValue = new DialogGUILabel(delegate { return GetDistanceToPart(); });
-            DialogGUILabel labelDistanceBetweenColliders = new DialogGUILabel(FormatLabel("Distance Between Colliders"), 150, 16);
-            DialogGUILabel labelDistanceBetweenCollidersValue = new DialogGUILabel(delegate { return GetDistanceBetweenColliders(); });
-            DialogGUILabel labelColliderBoundsIntersects = new DialogGUILabel(FormatLabel("Collider Bounds Intersects"), 150, 16);
-            DialogGUILabel labelColliderBoundsIntersectsValue = new DialogGUILabel(delegate { return GetColliderBoundsIntersects(); });
-
-            DialogGUIVerticalLayout layoutPartUnderCursor = new DialogGUIVerticalLayout
-            {
-                children = {
-                    new DialogGUIHorizontalLayout(labelPartUnderCursor),
-                    new DialogGUIHorizontalLayout(labelDistanceToPart, labelDistanceToPartValue),
-                    new DialogGUIHorizontalLayout(labelDistanceBetweenColliders, labelDistanceBetweenCollidersValue),
-                    new DialogGUIHorizontalLayout(labelColliderBoundsIntersects, labelColliderBoundsIntersectsValue)
-                },
-                padding = new RectOffset(5, 5, 5, 5)
-            };
-
-            return new DialogGUIBox("", 307, 90, null, layoutPartUnderCursor);
-        }
-
-        private void SetTextInputListeners(DialogGUITextInput textInput)
-        {
-            TMP_InputField tmp_Input = textInput.uiItem.GetComponent<TMP_InputField>();
-            tmp_Input.onSelect.AddListener(new UnityAction<string>(OnSelectTextInput));
-            tmp_Input.onDeselect.AddListener(new UnityAction<string>(OnDeselectTextInput));
+            axisLines.Show(part, referenceSpace);
         }
 
         private void OnPopupDialogDestroy()
         {
-            InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
-        }
-
-        private void OnSelectTextInput(string s)
-        {
-            InputLockManager.SetControlLock(ControlTypes.EDITOR_GIZMO_TOOLS | ControlTypes.EDITOR_ROOT_REFLOW, CONTROL_LOCK_ID);
-        }
-
-        private void OnDeselectTextInput(string s)
-        {
-            InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
-        }
-
-        private void SaveWindowPosition()
-        {
-            if (popupDialog)
+            axisLines.Hide();
+            if (newPart)
             {
-                Vector3 dialogPosition = popupDialog.RTrf.position;
-                dialogRect.x = dialogPosition.x / Screen.width + 0.5f;
-                dialogRect.y = dialogPosition.y / Screen.height + 0.5f;
+                Show(newPart);
+                newPart = null;
             }
         }
 
-        private void DismissDialog()
+        private string GetReferenceSpaceLabel()
         {
-            if (popupDialog)
+            return (referenceSpace == Space.Self) ? "Local" : "Absolute";
+        }
+
+        private void ReferenceSpaceToggle()
+        {
+            referenceSpace = (referenceSpace == Space.World) ? Space.Self : Space.World;
+        }
+
+        private bool ToggleTweakables()
+        {
+            showTweakables = !showTweakables;
+
+            if (showTweakables)
             {
-                SaveWindowPosition();
-                popupDialog.Dismiss();
+                tweakableWindow.Show(part.GetTweakables());
             }
+            else
+            {
+                tweakableWindow.Hide();
+            }
+
+            return showTweakables;
+        }
+
+        private bool ToggleColliders()
+        {
+            showColliders = !showColliders;
+
+            if (showColliders)
+            {
+                colliderWindow.Show(part);
+            }
+            else
+            {
+                colliderWindow.Hide();
+            }
+
+            return showColliders;
+        }
+
+        private void CloseWindow()
+        {
+            part = null;
+            axisLines.Hide();
+            tweakableWindow.Hide();
+            colliderWindow.Hide();
+            Hide();
         }
 
         private bool ValidatePart()
@@ -250,7 +203,10 @@ namespace PreciseEditor
 
             if (!partValid)
             {
-                DismissDialog();
+                axisLines.Hide();
+                tweakableWindow.Hide();
+                colliderWindow.Hide();
+                Hide();
             }
 
             return partValid;
@@ -261,64 +217,42 @@ namespace PreciseEditor
             return part.partInfo.title;
         }
 
-        private string GetColliderCenter()
-        {
-            return part.collider.bounds.center.ToString(FORMAT);
-        }
-
-        private string GetColliderExtents()
-        {
-            return part.collider.bounds.extents.ToString(FORMAT);
-        }
-
-        private string GetColliderSize()
-        {
-            return part.collider.bounds.size.ToString(FORMAT);
-        }
-
-        private float GetDistanceBetweenIntervals(float center1, float min1, float max1, float center2, float min2, float max2)
-        {
-            float distance = ((center2 - center1) > 0) ? (min2 - max1) : (min1 - max2);
-
-            return (distance < 0) ? 0 : distance;
-        }
-
-        private Vector3 GetDistanceBetweenBounds(Bounds bounds1, Bounds bounds2)
-        {
-            float distanceX = GetDistanceBetweenIntervals(bounds1.center.x, bounds1.min.x, bounds1.max.x, bounds2.center.x, bounds2.min.x, bounds2.max.x);
-            float distanceY = GetDistanceBetweenIntervals(bounds1.center.y, bounds1.min.y, bounds1.max.y, bounds2.center.y, bounds2.min.y, bounds2.max.y);
-            float distanceZ = GetDistanceBetweenIntervals(bounds1.center.z, bounds1.min.z, bounds1.max.z, bounds2.center.z, bounds2.min.z, bounds2.max.z);
-
-            return new Vector3(distanceX, distanceY, distanceZ);
-        }
-
-        private string GetPartUnderCursorTitle()
-        {
-            return partUnderCursor ? partUnderCursor.partInfo.title : "";
-        }
-
-        private string GetDistanceToPart()
-        {
-            return partUnderCursor ? (partUnderCursor.transform.position - part.transform.position).ToString(FORMAT) : "";
-        }
-
-        private string GetDistanceBetweenColliders()
-        {
-            return partUnderCursor ? GetDistanceBetweenBounds(part.collider.bounds, partUnderCursor.collider.bounds).ToString(FORMAT) : "";
-        }
-
-        private string GetColliderBoundsIntersects()
-        {
-            return partUnderCursor ? part.collider.bounds.Intersects(partUnderCursor.collider.bounds).ToString() : "";
-        }
-
         private string SetPosition(int vectorIndex, string value, Space space)
         {
-            float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
-            Vector3 position = space == Space.Self ? part.transform.localPosition : part.transform.position;
-            position[vectorIndex] = fValue;
-            PartTransform.SetPosition(part, position, space);
+            Vector3 position = GetWorldPositionToBeSet(vectorIndex, value, space);
+            Bounds partBounds = part.collider.bounds;
+            if (!AreBoundsOutOfHangarBounds(partBounds))
+            {
+                Vector3 boundsOffset = part.collider.bounds.center - part.transform.position;
+                partBounds.center = position + boundsOffset;
+                if (AreBoundsOutOfHangarBounds(partBounds))
+                {
+                    return value;
+                }
+            }
+            if (position == part.transform.position)
+            {
+                return value;
+            }
+
+            PartTransform.SetPosition(part, position, Space.World);
             return value;
+        }
+
+        private Vector3 GetWorldPositionToBeSet(int vectorIndex, string value, Space space)
+        {
+            float fValue = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
+            Vector3 position = (space == Space.Self) ? part.transform.localPosition : part.transform.position;
+            position[vectorIndex] = fValue;
+
+            return (space == Space.Self && part.parent != null) ? part.parent.transform.TransformPoint(position) : position;
+        }
+
+        private bool AreBoundsOutOfHangarBounds(Bounds bounds)
+        {
+            Bounds editorBounds = EditorBounds.Instance.constructionBounds;
+
+            return !(editorBounds.Contains(bounds.min) && editorBounds.Contains(bounds.max));
         }
 
         private string GetPosition(int vectorIndex, Space space)
@@ -382,11 +316,6 @@ namespace PreciseEditor
             eulerAngles[vectorIndex] = inverse ? -deltaRotation : deltaRotation;
 
             PartTransform.Rotate(part, eulerAngles, space);
-        }
-
-        private string FormatLabel(string label)
-        {
-            return "<color=\"white\">" + label + "</color>";
         }
     }
 }

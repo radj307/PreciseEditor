@@ -19,16 +19,16 @@ namespace PreciseEditor
                 offset = part.transform.InverseTransformPoint(newPosition);
                 part.transform.position = newPosition;
             }
-            PartTransform.UpdateEditorGizmo(part);
+            UpdateEditorGizmo(part);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
             {
-                PartTransform.UpdateMirrorSymmetryCounterpartsPosition(part);
+                UpdateMirrorSymmetryCounterpartsPosition(part);
             }
             else if (part.symMethod == SymmetryMethod.Radial)
             {
-                PartTransform.UpdateRadialSymmetryCounterpartsPosition(part, offset);
+                UpdateRadialSymmetryCounterpartsPosition(part, offset);
             }
 
             EditorLogic.fetch.SetBackup();
@@ -37,16 +37,16 @@ namespace PreciseEditor
         public static void Rotate(Part part, Vector3 eulerAngles, Space space)
         {
             part.transform.Rotate(eulerAngles, space);
-            PartTransform.UpdateEditorGizmo(part);
+            UpdateEditorGizmo(part);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, part);
 
             if (part.symMethod == SymmetryMethod.Mirror)
             {
-                PartTransform.RotateMirrorSymmetryCounterparts(part, eulerAngles, space);
+                RotateMirrorSymmetryCounterparts(part, eulerAngles, space);
             }
             else if (part.symMethod == SymmetryMethod.Radial)
             {
-                PartTransform.RotateRadialSymmetryCounterparts(part, eulerAngles, space);
+                RotateRadialSymmetryCounterparts(part, eulerAngles, space);
             }
 
             EditorLogic.fetch.SetBackup();
@@ -62,7 +62,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.position = EditorLogic.RootPart.transform.position + projection + offset;
-                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
+                UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
@@ -72,7 +72,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.Translate(offset);
-                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
+                UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
@@ -93,7 +93,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.Rotate(mirrorAxis, -angle, Space.World);
-                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
+                UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
         }
@@ -108,7 +108,7 @@ namespace PreciseEditor
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
                 symmetryCounterpart.transform.Rotate(eulerAngles, Space.Self);
-                PartTransform.UpdateEditorGizmo(symmetryCounterpart);
+                UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, symmetryCounterpart);
             }
         }
