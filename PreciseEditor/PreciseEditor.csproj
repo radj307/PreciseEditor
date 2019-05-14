@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppLauncherButton.cs" />
+    <Compile Include="AttachmentWindow.cs" />
     <Compile Include="BaseWindow.cs" />
     <Compile Include="AxisLines.cs" />
     <Compile Include="ColliderWindow.cs" />

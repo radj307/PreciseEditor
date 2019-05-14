@@ -18,8 +18,10 @@ namespace PreciseEditor
         private Part newPart = null;
         private Space referenceSpace = Space.World;
         private bool showTweakables = false;
+        private bool showAttachment = false;
         private bool showColliders = false;
         private TweakableWindow tweakableWindow = null;
+        private AttachmentWindow attachmentWindow = null;
         private ColliderWindow colliderWindow = null;
         private AxisLines axisLines = null;
 
@@ -31,6 +33,7 @@ namespace PreciseEditor
         public void Start()
         {
             tweakableWindow = gameObject.AddComponent<TweakableWindow>();
+            attachmentWindow = gameObject.AddComponent<AttachmentWindow>();
             colliderWindow = gameObject.AddComponent<ColliderWindow>();
             axisLines = gameObject.AddComponent<AxisLines>();
         }
@@ -87,6 +90,7 @@ namespace PreciseEditor
             DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false, referenceSpace); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIToggleButton toggleButtonTweakables = new DialogGUIToggleButton(showTweakables, "Tweakables", delegate { ToggleTweakables(); }, -1, LINE_HEIGHT);
+            DialogGUIToggleButton toggleButtonAttachment = new DialogGUIToggleButton(showAttachment, "Attachment Rules", delegate { ToggleAttachment(); }, -1, LINE_HEIGHT);
             DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
             DialogGUIButton buttonClose = new DialogGUIButton("Close", delegate { CloseWindow(); }, 140f, LINE_HEIGHT, true);
@@ -96,7 +100,7 @@ namespace PreciseEditor
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation),
-                new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonColliders)
+                new DialogGUIHorizontalLayout(toggleButtonTweakables, toggleButtonAttachment, toggleButtonColliders)
             };
             dialogGUIBaseList.Add(new DialogGUIHorizontalLayout(spaceToCenter, buttonClose, spaceToCenter));
 
@@ -126,6 +130,11 @@ namespace PreciseEditor
             if (showTweakables)
             {
                 tweakableWindow.Show(part.GetTweakables());
+            }
+
+            if (showAttachment)
+            {
+                attachmentWindow.Show(part.attachRules);
             }
 
             if (showColliders)
@@ -172,6 +181,22 @@ namespace PreciseEditor
             return showTweakables;
         }
 
+        private bool ToggleAttachment()
+        {
+            showAttachment = !showAttachment;
+
+            if (showAttachment)
+            {
+                attachmentWindow.Show(part.attachRules);
+            }
+            else
+            {
+                attachmentWindow.Hide();
+            }
+
+            return showAttachment;
+        }
+
         private bool ToggleColliders()
         {
             showColliders = !showColliders;
@@ -193,6 +218,7 @@ namespace PreciseEditor
             part = null;
             axisLines.Hide();
             tweakableWindow.Hide();
+            attachmentWindow.Hide();
             colliderWindow.Hide();
             Hide();
         }
@@ -205,6 +231,7 @@ namespace PreciseEditor
             {
                 axisLines.Hide();
                 tweakableWindow.Hide();
+                attachmentWindow.Hide();
                 colliderWindow.Hide();
                 Hide();
             }
