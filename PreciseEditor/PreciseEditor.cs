@@ -31,6 +31,11 @@ namespace PreciseEditor
 
         public static Part GetPartUnderCursor()
         {
+            if (EditorLogic.SelectedPart)
+            {
+                return EditorLogic.SelectedPart;
+            }
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             EditorLogic editorLogic = EditorLogic.fetch;
 
