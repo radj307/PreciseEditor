@@ -7,11 +7,14 @@ namespace PreciseEditor
     [KSPAddon (KSPAddon.Startup.EditorAny, false)]
 	public class AppLauncherButton : MonoBehaviour
 	{
-		private ApplicationLauncherButton button = null;
+        const string texPathDefault = "PreciseEditor/Textures/AppLauncherIcon";
 
         public static AppLauncherButton Instance;
 
-		const string texPathDefault = "PreciseEditor/Textures/AppLauncherIcon";
+        static string[] imgSuffixes = new string[] { ".png", ".jpg", ".gif", ".PNG", ".JPG", ".GIF" };
+
+        private ApplicationLauncherButton button = null;
+        private Texture2D texture = null;
 
         private void Awake()
         {
@@ -37,11 +40,11 @@ namespace PreciseEditor
             {
 				ApplicationLauncher.Instance.RemoveModApplication(this.button);
 			}
+            Destroy(texture);
+            texture = null;
 		}
 
-        static string[] imgSuffixes = new string[] { ".png", ".jpg", ".gif", ".PNG", ".JPG", ".GIF" };
-
-        public static Boolean LoadImageFromFile(ref Texture2D tex, String fileNamePath)
+        public static Boolean LoadImageFromFile(ref Texture2D texture, String fileNamePath)
         {
             Boolean blnReturn = false;
 
@@ -65,7 +68,7 @@ namespace PreciseEditor
                 {
                     try
                     {
-                        tex.LoadImage(System.IO.File.ReadAllBytes(path));
+                        texture.LoadImage(System.IO.File.ReadAllBytes(path));
                         blnReturn = true;
                     }
                     catch (Exception ex)
@@ -90,11 +93,10 @@ namespace PreciseEditor
 
         Texture2D GetTexture(string path, bool b)
         {
-            Texture2D tex = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+            texture = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+            LoadImageFromFile(ref texture, KSPUtil.ApplicationRootPath + "GameData/" + path);
 
-            LoadImageFromFile(ref tex, KSPUtil.ApplicationRootPath + "GameData/" + path);
-
-            return tex;
+            return texture;
         }
 
         private void OnGuiAppLauncherReady()
