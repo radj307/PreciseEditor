@@ -45,10 +45,12 @@ namespace PreciseEditor
         {
             if (IsVisible() || tweakableWindow.IsVisible() || attachmentWindow.IsVisible() || colliderWindow.IsVisible())
             {
-                ValidatePart();
-                position = PartUtil.GetPosition(part, referenceSpace, compoundTargetSelected);
-                rotation = PartUtil.GetRotation(part, referenceSpace, compoundTargetSelected);
-                axisLines.UpdateAxis(part, referenceSpace, compoundTargetSelected);
+                if (ValidatePart())
+                {
+                    position = PartUtil.GetPosition(part, referenceSpace, compoundTargetSelected);
+                    rotation = PartUtil.GetRotation(part, referenceSpace, compoundTargetSelected);
+                    axisLines.UpdateAxis(part, referenceSpace, compoundTargetSelected);
+                }
             }
         }
 
@@ -269,14 +271,39 @@ namespace PreciseEditor
             return part.partInfo.title;
         }
 
+        private GameObject FindChildGameObjectByName(GameObject parent, string name)
+        {
+            Transform[] transforms = parent.transform.GetComponentsInChildren<Transform>(true);
+            foreach (Transform transform in transforms)
+            {
+                if (transform.gameObject.name == name)
+                {
+                    return transform.gameObject;
+                }
+            }
+
+            return null;
+        }
+
         private string SetPosition(int vectorIndex, string value)
         {
             Vector3 newPosition = GetWorldPositionToBeSet(vectorIndex, value);
             Vector3 oldPosition = PartUtil.GetPosition(part, Space.World, compoundTargetSelected);
-            Bounds partBounds = part.collider.bounds;
+            Bounds partBounds;
+
+            if (PartUtil.IsTargetActive(part, compoundTargetSelected))
+            {
+                partBounds = FindChildGameObjectByName(part.gameObject, "obj_targetCollider").GetComponent<Collider>().bounds;
+            }
+            else
+            {
+                partBounds = part.collider.bounds;
+            }
+
             if (!AreBoundsOutOfHangarBounds(partBounds))
             {
-                Vector3 boundsOffset = part.collider.bounds.center - part.transform.position;
+                Vector3 boundsOffset = partBounds.center - oldPosition;
+
                 partBounds.center = newPosition + boundsOffset;
                 if (AreBoundsOutOfHangarBounds(partBounds))
                 {
