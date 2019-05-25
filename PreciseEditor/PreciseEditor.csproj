@@ -57,6 +57,8 @@
     <Compile Include="BaseWindow.cs" />
     <Compile Include="AxisLines.cs" />
     <Compile Include="ColliderWindow.cs" />
+    <Compile Include="CompoundPartTransform.cs" />
+    <Compile Include="PartUtil.cs" />
     <Compile Include="TweakablePartModules.cs" />
     <Compile Include="PartEditionWindow.cs" />
     <Compile Include="Log.cs" />

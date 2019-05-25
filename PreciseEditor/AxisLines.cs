@@ -7,6 +7,7 @@ namespace PreciseEditor
         public Color red, green, cyan;
         protected GameObject[] axis;
         protected Space axisSpace;
+        protected bool axisCompoundTargetSelected;
         protected bool visible = false;
 
         public void Start()
@@ -16,18 +17,18 @@ namespace PreciseEditor
             cyan = new Color(0f, 0.85f, 1.0f, 1.0f);
         }
 
-        public void Show(Part part, Space space = Space.World)
+        public void Show(Part part, Space space, bool compoundTargetSelected)
         {
             Material material = new Material(Shader.Find("KSP/UnlitColor"));
             GameObject axisX = CreateAxis("AxisX", material, red);
             GameObject axisY = CreateAxis("AxisY", material, green);
             GameObject axisZ = CreateAxis("AxisZ", material, cyan);
             axis = new GameObject[] { axisX, axisY, axisZ };
-            UpdateAxis(part, space);
+            UpdateAxis(part, space, compoundTargetSelected);
             visible = true;
         }
 
-        public void UpdateAxis(Part part, Space space = Space.World)
+        public void UpdateAxis(Part part, Space space, bool compoundTargetSelected)
         {
             if (part == null)
             {
@@ -36,15 +37,17 @@ namespace PreciseEditor
             }
 
             bool isRootPart = (part.parent == null);
-            if (visible && space == axisSpace && part.transform.position == transform.position && (isRootPart || part.parent.transform.rotation == transform.rotation))
+            if (visible && space == axisSpace && compoundTargetSelected == axisCompoundTargetSelected && part.transform.position == transform.position &&
+                (isRootPart || part.parent.transform.rotation == transform.rotation))
             {
                 return;
             }
 
-            transform.position = part.transform.position;
+            bool isTargetActive = PartUtil.IsTargetActive(part, compoundTargetSelected);
+            transform.position = PartUtil.GetPosition(part, Space.World, isTargetActive);
             transform.rotation = isRootPart ? part.transform.rotation : part.parent.transform.rotation;
             axisSpace = space;
-
+            axisCompoundTargetSelected = compoundTargetSelected;
             Vector3[] directions = new Vector3[] { transform.right, transform.up, transform.forward };
 
             for (int index = 0; index < axis.Length; index++)

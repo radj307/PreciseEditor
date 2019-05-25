@@ -4,21 +4,11 @@ namespace PreciseEditor
 {
     public static class PartTransform
     {
-        public static void SetPosition(Part part, Vector3 newPosition, Space space)
+        public static void SetWorldPosition(Part part, Vector3 newPosition)
         {
-            Vector3 offset;
+            Vector3 localPosition = part.transform.InverseTransformPoint(newPosition);
 
-            if (space == Space.Self)
-            {
-                Vector3 sourcePosition = part.transform.position;
-                part.transform.localPosition = newPosition;
-                offset = -part.transform.InverseTransformPoint(sourcePosition);
-            }
-            else
-            {
-                offset = part.transform.InverseTransformPoint(newPosition);
-                part.transform.position = newPosition;
-            }
+            part.transform.position = newPosition;
             UpdateEditorGizmo(part);
             GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, part);
 
@@ -28,7 +18,7 @@ namespace PreciseEditor
             }
             else if (part.symMethod == SymmetryMethod.Radial)
             {
-                UpdateRadialSymmetryCounterpartsPosition(part, offset);
+                UpdateRadialSymmetryCounterpartsPosition(part, localPosition);
             }
 
             EditorLogic.fetch.SetBackup();
@@ -54,24 +44,31 @@ namespace PreciseEditor
 
         private static void UpdateMirrorSymmetryCounterpartsPosition(Part part)
         {
-            Vector3 localPosition = part.transform.position - EditorLogic.RootPart.transform.position;
-            Vector3 projection = Vector3.ProjectOnPlane(localPosition, EditorLogic.RootPart.transform.right);
-            Vector3 projectedPoint = EditorLogic.RootPart.transform.position + projection;
-            Vector3 offset = projectedPoint - part.transform.position;
+            Vector3 mirrorPosition = MirrorPosition(part.transform.position);
 
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
-                symmetryCounterpart.transform.position = EditorLogic.RootPart.transform.position + projection + offset;
+                symmetryCounterpart.transform.position = mirrorPosition;
                 UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
         }
 
-        private static void UpdateRadialSymmetryCounterpartsPosition(Part part, Vector3 offset)
+        private static Vector3 MirrorPosition(Vector3 position)
+        {
+            Vector3 localPosition = position - EditorLogic.RootPart.transform.position;
+            Vector3 projection = Vector3.ProjectOnPlane(localPosition, EditorLogic.RootPart.transform.right);
+            Vector3 projectedPoint = EditorLogic.RootPart.transform.position + projection;
+            Vector3 offset = projectedPoint - position;
+
+            return EditorLogic.RootPart.transform.position + projection + offset;
+        }
+
+        private static void UpdateRadialSymmetryCounterpartsPosition(Part part, Vector3 localPosition)
         {
             foreach (Part symmetryCounterpart in part.symmetryCounterparts)
             {
-                symmetryCounterpart.transform.Translate(offset);
+                symmetryCounterpart.transform.Translate(localPosition);
                 UpdateEditorGizmo(symmetryCounterpart);
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartOffset, symmetryCounterpart);
             }
@@ -117,23 +114,26 @@ namespace PreciseEditor
         {
             if (part == EditorLogic.SelectedPart)
             {
+                Vector3 position = part.transform.position;
+                Quaternion rotation = part.transform.rotation;
+
                 var gizmoOffset = HighLogic.FindObjectOfType<EditorGizmos.GizmoOffset>();
                 if (gizmoOffset != null)
                 {
-                    gizmoOffset.transform.position = part.transform.position;
+                    gizmoOffset.transform.position = position;
                     if (gizmoOffset.CoordSpace == Space.Self)
                     {
-                        gizmoOffset.transform.rotation = part.transform.rotation;
+                        gizmoOffset.transform.rotation = rotation;
                     }
                 }
 
                 var gizmoRotate = HighLogic.FindObjectOfType<EditorGizmos.GizmoRotate>();
                 if (gizmoRotate != null)
                 {
-                    gizmoRotate.transform.position = part.transform.position;
+                    gizmoRotate.transform.position = position;
                     if (gizmoRotate.CoordSpace == Space.Self)
                     {
-                        gizmoRotate.transform.rotation = part.transform.rotation;
+                        gizmoRotate.transform.rotation = rotation;
                     }
                 }
             }
