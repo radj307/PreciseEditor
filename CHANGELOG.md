@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+### 1.3.0
+- Struts and fuel lines can be edited on both ends.
+- Added the Attachment Rules window where surface attachment rules can be edited. Now you can surface attach anything !
+- Pressing P while a part is selected but not attached will edit that part. Useful to edit attachment rules before attaching the part.
+- New icon.
+
 ### 1.2.0
 - Changed max number of input digits from 14 to 8.
 - Tweaking Thrust Limiter now update DeltaV information.
