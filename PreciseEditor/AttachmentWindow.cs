@@ -7,21 +7,17 @@ namespace PreciseEditor
     {
         const float LINE_HEIGHT = 25f;
 
-        private AttachRules attachRules = null;
-
         public AttachmentWindow()
         {
             dialogRect = new Rect(0.5f, 0.5f, 325f, 10f);
         }
 
-        public void Show(AttachRules attachRules)
+        public void Show(Part part)
         {
             Hide();
 
-            this.attachRules = attachRules;
-
-            DialogGUIToggle toggleSurfaceAttach = new DialogGUIToggle(delegate { return GetSurfaceAttach(); }, "Allow surface attachment to other parts", delegate { ToggleSurfaceAttach(); }, -1, LINE_HEIGHT);
-            DialogGUIToggle toggleAllowSurfaceAttach = new DialogGUIToggle(delegate { return GetAllowSurfaceAttach(); }, "Allow other parts to be surface attached to this part", delegate { ToggleAllowSurfaceAttach(); }, -1, LINE_HEIGHT);
+            DialogGUIToggle toggleSurfaceAttach = new DialogGUIToggle(delegate { return GetSurfaceAttach(part); }, "Allow surface attachment to other parts", delegate { ToggleSurfaceAttach(part); }, -1, LINE_HEIGHT);
+            DialogGUIToggle toggleAllowSurfaceAttach = new DialogGUIToggle(delegate { return GetAllowSurfaceAttach(part); }, "Allow other parts to be surface attached to this part", delegate { ToggleAllowSurfaceAttach(part); }, -1, LINE_HEIGHT);
 
             string title = FormatLabel("Precise Editor - ") + "Attachment Rules";
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase> {
@@ -33,24 +29,34 @@ namespace PreciseEditor
             popupDialog.onDestroy.AddListener(SaveWindowPosition);
         }
 
-        private bool GetSurfaceAttach()
+        private bool GetSurfaceAttach(Part part)
         {
-            return attachRules.srfAttach;
+            return part.attachRules.srfAttach;
         }
 
-        private void ToggleSurfaceAttach()
+        private void ToggleSurfaceAttach(Part part)
         {
-            attachRules.srfAttach = !attachRules.srfAttach;
+            part.attachRules.srfAttach = !part.attachRules.srfAttach;
+
+            foreach (Part symmetryCounterpart in part.symmetryCounterparts)
+            {
+                symmetryCounterpart.attachRules.srfAttach = part.attachRules.srfAttach;
+            }
         }
 
-        private bool GetAllowSurfaceAttach()
+        private bool GetAllowSurfaceAttach(Part part)
         {
-            return attachRules.allowSrfAttach;
+            return part.attachRules.allowSrfAttach;
         }
 
-        private void ToggleAllowSurfaceAttach()
+        private void ToggleAllowSurfaceAttach(Part part)
         {
-            attachRules.allowSrfAttach = !attachRules.allowSrfAttach;
+            part.attachRules.allowSrfAttach = !part.attachRules.allowSrfAttach;
+
+            foreach (Part symmetryCounterpart in part.symmetryCounterparts)
+            {
+                symmetryCounterpart.attachRules.allowSrfAttach = part.attachRules.allowSrfAttach;
+            }
         }
     }
 }

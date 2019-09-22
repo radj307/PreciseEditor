@@ -141,7 +141,7 @@ namespace PreciseEditor
 
             if (showAttachment)
             {
-                attachmentWindow.Show(part.attachRules);
+                attachmentWindow.Show(part);
             }
 
             if (showColliders)
@@ -250,7 +250,7 @@ namespace PreciseEditor
 
             if (showAttachment)
             {
-                attachmentWindow.Show(part.attachRules);
+                attachmentWindow.Show(part);
             }
             else
             {
