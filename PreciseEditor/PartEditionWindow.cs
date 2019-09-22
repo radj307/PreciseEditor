@@ -7,10 +7,11 @@ namespace PreciseEditor
 {
     public class PartEditionWindow : BaseWindow
     {
-        const int MAXLENGTH = 8;
-        const float LABEL_WIDTH = 75f;
-        const float LINE_HEIGHT = 25f;
-        const string FORMAT = "F4";
+        private const string CFG_FILE = "PreciseEditor.cfg";
+        private const int MAXLENGTH = 8;
+        private const float LABEL_WIDTH = 75f;
+        private const float LINE_HEIGHT = 25f;
+        private const string FORMAT = "F4";
 
         private float deltaPosition = 0.2f;
         private float deltaRotation = 15f;
@@ -59,6 +60,8 @@ namespace PreciseEditor
                 newPart = part;
                 return;
             }
+
+            LoadCfgFile();
 
             this.part = part;
 
@@ -149,6 +152,62 @@ namespace PreciseEditor
             axisLines.Show(part, referenceSpace, compoundTargetSelected);
         }
 
+        private string GetCfgPath()
+        {
+            return KSPUtil.ApplicationRootPath + "GameData/PreciseEditor/" + CFG_FILE;
+        }
+
+        private void LoadCfgFile()
+        {
+            string filePath = GetCfgPath();
+            string[] lines = System.IO.File.ReadAllLines(filePath);
+
+            foreach (string line in lines)
+            {
+                string formattedLine = line.Replace(" ", "");
+                string[] splittedLine = formattedLine.Split('=');
+                string key = splittedLine[0];
+                string value = splittedLine[1];
+                switch (key)
+                {
+                    case "ANCHOR":
+                        compoundTargetSelected = (value == "target");
+                        break;
+                    case "DELTA_POSITION":
+                        deltaPosition = float.Parse(value);
+                        break;
+                    case "DELTA_ROTATION":
+                        deltaRotation = float.Parse(value);
+                        break;
+                    case "REFERENCE_SPACE":
+                        referenceSpace = (value == "absolute") ? Space.World : Space.Self;
+                        break;
+                }
+            }
+        }
+
+        private void SaveCfgValue(string key, string value)
+        {
+            string filePath = GetCfgPath();
+            string[] lines = System.IO.File.ReadAllLines(filePath);
+            int lineNumber = 0;
+
+            foreach (string line in lines)
+            {
+                string formattedLine = line.Replace(" ", "");
+                string[] splittedLine = formattedLine.Split('=');
+
+                if (splittedLine[0] == key)
+                {
+                    lines[lineNumber] = key + " = " + value;
+                    break;
+                }
+                lineNumber++;
+            }
+
+            System.IO.File.WriteAllLines(filePath, lines);
+        }
+
         private void OnPopupDialogDestroy()
         {
             axisLines.Hide();
@@ -167,6 +226,7 @@ namespace PreciseEditor
         private void ToggleReferenceSpace()
         {
             referenceSpace = (referenceSpace == Space.World) ? Space.Self : Space.World;
+            SaveCfgValue("REFERENCE_SPACE", (referenceSpace == Space.Self) ? "local" : "absolute");
         }
 
         private string GetCompoundLabel()
@@ -181,6 +241,7 @@ namespace PreciseEditor
             {
                 compoundTargetSelected = !compoundTargetSelected;
             }
+            SaveCfgValue("ANCHOR", compoundTargetSelected ? "target" : "source");
         }
 
         private bool ToggleAttachment()
@@ -347,12 +408,14 @@ namespace PreciseEditor
         private string SetDeltaPosition(string value)
         {
             deltaPosition = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
+            SaveCfgValue("DELTA_POSITION", deltaPosition.ToString(FORMAT));
             return value;
         }
 
         private string SetDeltaRotation(string value)
         {
             deltaRotation = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
+            SaveCfgValue("DELTA_ROTATION", deltaRotation.ToString(FORMAT));
             return value;
         }
 
