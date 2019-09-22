@@ -14,7 +14,7 @@ Download the zip file and unzip it in your KSP GameData directory.
 - All part transformations in absolute or local mode.
 - Automatically update all symmetry counterparts, struts and fuel lines.
 - Show the precise location of the center of mass, center of lift and center of thrust.
-- Enter the exact value for some part module's value instead of the inaccurate slider. (ex. : control surface authority limiter)
+- Set the attachment rules. Attach any part to any part.
 - Units for position are in meters with 4 decimals of precision so 0.0001 is 1/10th of a millimeter.
 - Units for rotation are in degrees and angles are [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 - Show the position and size of the part collider bounds.

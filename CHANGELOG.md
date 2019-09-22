@@ -1,6 +1,8 @@
 ## CHANGELOG
 
 ### 1.3.0
+- Part Edition Window configuration automatically saved in a cfg file.
+- Removed the Tweakables window since tweakables precision editing is now stock.
 - Struts and fuel lines can be edited on both ends.
 - Added the Attachment Rules window where surface attachment rules can be edited. Now you can surface attach anything !
 - Pressing P while a part is selected but not attached will edit that part. Useful to edit attachment rules before attaching the part.
