@@ -59,13 +59,11 @@
     <Compile Include="ColliderWindow.cs" />
     <Compile Include="CompoundPartTransform.cs" />
     <Compile Include="PartUtil.cs" />
-    <Compile Include="TweakablePartModules.cs" />
     <Compile Include="PartEditionWindow.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="PartTransform.cs" />
     <Compile Include="PreciseEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TweakableWindow.cs" />
     <Compile Include="VesselWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
