@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+### 1.3.3
+- Moved PreciseEditor.cfg in PluginData directory.
+
+### 1.3.2
+- Recompiled for KSP 1.8.1
+
 ### 1.3.1
 - Recompiled for KSP 1.8.0
 

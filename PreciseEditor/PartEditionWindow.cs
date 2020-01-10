@@ -154,7 +154,7 @@ namespace PreciseEditor
 
         private string GetCfgPath()
         {
-            return KSPUtil.ApplicationRootPath + "GameData/PreciseEditor/" + CFG_FILE;
+            return KSPUtil.ApplicationRootPath + "GameData/PreciseEditor/PluginData/" + CFG_FILE;
         }
 
         private void LoadCfgFile()
