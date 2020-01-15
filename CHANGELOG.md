@@ -2,6 +2,7 @@
 
 ### 1.3.3
 - Moved PreciseEditor.cfg in PluginData directory.
+- New Icon.
 
 ### 1.3.2
 - Recompiled for KSP 1.8.1
