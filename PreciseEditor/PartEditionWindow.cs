@@ -67,7 +67,7 @@ namespace PreciseEditor
 
             DialogGUISpace spaceAxisLeft = new DialogGUISpace(30f);
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
-            DialogGUISpace spaceAxisRight = new DialogGUISpace(115f);
+            DialogGUISpace spaceAxisRight = new DialogGUISpace(120f);
             DialogGUISpace spaceTransform = new DialogGUISpace(15f);
             DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ToggleReferenceSpace, 100f, LINE_HEIGHT, false);
             DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT);
