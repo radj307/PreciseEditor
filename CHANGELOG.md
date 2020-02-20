@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### 1.4.0
+- Recompiled for KSP 1.9.0
+- Added /10 and x10 buttons for - / + values (Requested by flart)
+
 ### 1.3.3
 - Moved PreciseEditor.cfg in PluginData directory.
 - New Icon.
