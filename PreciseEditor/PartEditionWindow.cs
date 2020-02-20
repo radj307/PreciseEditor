@@ -29,7 +29,7 @@ namespace PreciseEditor
 
         public PartEditionWindow()
         {
-            dialogRect = new Rect(0.5f, 0.75f, 600f, 175f);
+            dialogRect = new Rect(0.5f, 0.75f, 680f, 175f);
         }
 
         public void Start()
@@ -67,13 +67,13 @@ namespace PreciseEditor
 
             DialogGUISpace spaceAxisLeft = new DialogGUISpace(30f);
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
-            DialogGUISpace spaceAxisRight = new DialogGUISpace(80f);
+            DialogGUISpace spaceAxisRight = new DialogGUISpace(115f);
             DialogGUISpace spaceTransform = new DialogGUISpace(15f);
             DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ToggleReferenceSpace, 100f, LINE_HEIGHT, false);
             DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT);
             DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT);
             DialogGUILabel labelZ = new DialogGUILabel(FormatLabel("Z"), LINE_HEIGHT);
-            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("-/+"), LINE_HEIGHT);
+            DialogGUILabel labelMinusPlus = new DialogGUILabel(FormatLabel("- / +"), LINE_HEIGHT);
             DialogGUILabel labelPosition = new DialogGUILabel(FormatLabel("Position"), LABEL_WIDTH);
             DialogGUILabel labelRotation = new DialogGUILabel(FormatLabel("Rotation"), LABEL_WIDTH);
             DialogGUITextInput inputPositionX = new DialogGUITextInput("", false, MAXLENGTH, delegate (string value) { return SetPosition(0, value); }, delegate { return GetPosition(0); }, TMP_InputField.ContentType.DecimalNumber, LINE_HEIGHT);
@@ -90,12 +90,16 @@ namespace PreciseEditor
             DialogGUIButton buttonPosYPlus = new DialogGUIButton("+", delegate { Translate(1, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonPosZMinus = new DialogGUIButton("-", delegate { Translate(2, true); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonPosZPlus = new DialogGUIButton("+", delegate { Translate(2, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonDeltaPosDiv = new DialogGUIButton("/10", delegate { SetDeltaPosition((deltaPosition / 10).ToString()); }, 35f, LINE_HEIGHT, false);
+            DialogGUIButton buttonDeltaPosMult = new DialogGUIButton("×10", delegate { SetDeltaPosition((deltaPosition * 10).ToString()); }, 35f, LINE_HEIGHT, false);
             DialogGUIButton buttonRotXMinus = new DialogGUIButton("-", delegate { Rotate(0, true); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotXPlus = new DialogGUIButton("+", delegate { Rotate(0, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotYMinus = new DialogGUIButton("-", delegate { Rotate(1, true); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotYPlus = new DialogGUIButton("+", delegate { Rotate(1, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotZMinus = new DialogGUIButton("-", delegate { Rotate(2, true); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
+            DialogGUIButton buttonDeltaRotDiv = new DialogGUIButton("/10", delegate { SetDeltaRotation((deltaRotation / 10).ToString()); }, 35f, LINE_HEIGHT, false);
+            DialogGUIButton buttonDeltaRotMult = new DialogGUIButton("×10", delegate { SetDeltaRotation((deltaRotation * 10).ToString()); }, 35f, LINE_HEIGHT, false);
             DialogGUIToggleButton toggleButtonAttachment = new DialogGUIToggleButton(showAttachment, "Attachment Rules", delegate { ToggleAttachment(); }, -1, LINE_HEIGHT);
             DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
@@ -104,8 +108,8 @@ namespace PreciseEditor
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, inputDeltaPosition),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, inputDeltaRotation)
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, buttonDeltaPosDiv, inputDeltaPosition, buttonDeltaPosMult),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, buttonDeltaRotDiv, inputDeltaRotation, buttonDeltaRotMult)
             };
             if (part.isCompund)
             {
