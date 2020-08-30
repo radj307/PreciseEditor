@@ -1,11 +1,10 @@
 {
     "NAME": "Precise Editor",
-	"URL": "https://raw.githubusercontent.com/jfrouleau/PreciseEditor/master/PreciseEditor.version",
-	"DOWNLOAD": "https://github.com/jfrouleau/PreciseEditor/releases",
-	"CHANGE_LOG_URL": "https://raw.githubusercontent.com/jfrouleau/PreciseEditor/master/CHANGELOG.md",
+	"URL": "https://raw.githubusercontent.com/zolotiyeruki/PreciseEditor/master/PreciseEditor.version",
+	"DOWNLOAD": "https://github.com/zolotiyeruki/PreciseEditor/releases",
 	"GITHUB":
 	{
-        "USERNAME": "jfrouleau",
+        "USERNAME": "zolotiyeruki",
         "REPOSITORY": "PreciseEditor"
     },
     "VERSION":
@@ -13,24 +12,24 @@
         "MAJOR": 1,
         "MINOR": 4,
         "PATCH": 0,
-        "BUILD": 0
+        "BUILD": 1
 	},
     "KSP_VERSION":
 	{
         "MAJOR": 1, 
-        "MINOR": 9, 
+        "MINOR": 10, 
         "PATCH": 0
     }, 
     "KSP_VERSION_MIN":
 	{
         "MAJOR": 1, 
-        "MINOR": 9, 
+        "MINOR": 10, 
         "PATCH": 0
     },
     "KSP_VERSION_MAX":
 	{
         "MAJOR": 1, 
-        "MINOR": 9, 
+        "MINOR": 10, 
         "PATCH": 99
     } 
 }
