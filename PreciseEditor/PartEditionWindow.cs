@@ -29,7 +29,7 @@ namespace PreciseEditor
 
         public PartEditionWindow()
         {
-            dialogRect = new Rect(0.5f, 0.75f, 680f, 175f);
+            dialogRect = new Rect(0.5f, 0.75f, 750f, 175f);
         }
 
         public void Start()
@@ -69,6 +69,7 @@ namespace PreciseEditor
             DialogGUISpace spaceAxisCenter = new DialogGUISpace(115f);
             DialogGUISpace spaceAxisRight = new DialogGUISpace(120f);
             DialogGUISpace spaceTransform = new DialogGUISpace(15f);
+            DialogGUISpace spaceTransformRight = new DialogGUISpace(70f);
             DialogGUIButton buttonReferenceSpace = new DialogGUIButton(GetReferenceSpaceLabel, ToggleReferenceSpace, 100f, LINE_HEIGHT, false);
             DialogGUILabel labelX = new DialogGUILabel(FormatLabel("X"), LINE_HEIGHT);
             DialogGUILabel labelY = new DialogGUILabel(FormatLabel("Y"), LINE_HEIGHT);
@@ -100,6 +101,9 @@ namespace PreciseEditor
             DialogGUIButton buttonRotZPlus = new DialogGUIButton("+", delegate { Rotate(2, false); }, LINE_HEIGHT, LINE_HEIGHT, false);
             DialogGUIButton buttonDeltaRotDiv = new DialogGUIButton("/10", delegate { SetDeltaRotation((deltaRotation / 10).ToString()); }, 35f, LINE_HEIGHT, false);
             DialogGUIButton buttonDeltaRotMult = new DialogGUIButton("×10", delegate { SetDeltaRotation((deltaRotation * 10).ToString()); }, 35f, LINE_HEIGHT, false);
+
+            DialogGUIButton buttonZeroRot = new DialogGUIButton("Zero", delegate { RotateZero(); }, 70f, LINE_HEIGHT, false);
+
             DialogGUIToggleButton toggleButtonAttachment = new DialogGUIToggleButton(showAttachment, "Attachment Rules", delegate { ToggleAttachment(); }, -1, LINE_HEIGHT);
             DialogGUIToggleButton toggleButtonColliders = new DialogGUIToggleButton(showColliders, "Colliders", delegate { ToggleColliders(); }, -1, LINE_HEIGHT);
             DialogGUISpace spaceToCenter = new DialogGUISpace(-1);
@@ -107,9 +111,9 @@ namespace PreciseEditor
 
             List<DialogGUIBase> dialogGUIBaseList = new List<DialogGUIBase>
             {
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, buttonDeltaPosDiv, inputDeltaPosition, buttonDeltaPosMult),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, buttonDeltaRotDiv, inputDeltaRotation, buttonDeltaRotMult)
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, buttonReferenceSpace, spaceAxisLeft, labelX, spaceAxisCenter, labelY, spaceAxisCenter, labelZ, spaceAxisRight, labelMinusPlus, spaceTransformRight),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelPosition, buttonPosXMinus, inputPositionX, buttonPosXPlus, spaceTransform, buttonPosYMinus, inputPositionY, buttonPosYPlus, spaceTransform, buttonPosZMinus, inputPositionZ, buttonPosZPlus, spaceTransform, buttonDeltaPosDiv, inputDeltaPosition, buttonDeltaPosMult, spaceTransformRight),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleCenter, labelRotation, buttonRotXMinus, inputRotationX, buttonRotXPlus, spaceTransform, buttonRotYMinus, inputRotationY, buttonRotYPlus, spaceTransform, buttonRotZMinus, inputRotationZ, buttonRotZPlus, spaceTransform, buttonDeltaRotDiv, inputDeltaRotation, buttonDeltaRotMult, buttonZeroRot)
             };
             if (part.isCompund)
             {
@@ -432,6 +436,15 @@ namespace PreciseEditor
             SetPosition(vectorIndex, newValue.ToString());
         }
 
+        private void RotateZero()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                SetRotation(0, "0");
+                SetRotation(1, "0");
+                SetRotation(2, "0");
+            }
+        }
         private void Rotate(int vectorIndex, bool inverse)
         {
             Vector3 eulerAngles = new Vector3(0, 0, 0);
