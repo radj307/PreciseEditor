@@ -32,10 +32,15 @@ namespace PreciseEditor
         public static Part GetPartUnderCursor()
         {
             if (EditorLogic.SelectedPart)
-            {
+            { // use the currently selected part
                 return EditorLogic.SelectedPart;
             }
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            { // use the root part if shift is pressed
+                return EditorLogic.RootPart;
+            }
 
+            // else, use a raycast to find the part
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             EditorLogic editorLogic = EditorLogic.fetch;
 
